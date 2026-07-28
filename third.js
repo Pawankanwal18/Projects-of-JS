@@ -22,10 +22,12 @@ const quotes = [
 ];
 
 
-function generateQuotes(){
-    const text = document.getElementById("quote");
+// setInterval(generateQuotes,2000);
+const button =document.querySelector("button");
+button.addEventListener('click', ()=>{
+   const text = document.getElementById("quote");
 
     const index = Math.floor(Math.random()*quotes.length);
     text.textContent = quotes[index];
-}
-// setInterval(generateQuotes,2000);
+
+})
