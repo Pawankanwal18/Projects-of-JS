@@ -55,7 +55,7 @@ document.addEventListener("click", (e) => {
     // Stay on screen while growing
     setTimeout(() => {
         circle.classList.add("hide");
-    }, 3000);
+    }, 5000);
 
     // Remove after fade-out
     setTimeout(() => {
