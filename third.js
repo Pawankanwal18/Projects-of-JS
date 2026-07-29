@@ -31,3 +31,5 @@ button.addEventListener('click', ()=>{
     text.textContent = quotes[index];
 
 })
+
+//event.key is very importent concept
