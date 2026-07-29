@@ -1,59 +1,65 @@
 const words = [
-    "JavaScript",
-    "HTML",
-    "CSS",
-    "React",
-    "Node",
-    "Python",
-    "Coding",
     "Dream",
-    "Focus",
+    "Believe",
     "Create",
     "Success",
-    "Learn",
-    "Build",
-    "Future",
-    "Logic",
-    "Developer",
-    "AI",
-    "Believe",
     "Code",
-    "Explore"
+    "JavaScript",
+    "React",
+    "Focus",
+    "Learn",
+    "Future",
+    "AI",
+    "Explore",
+    "Build",
+    "Think",
+    "Innovate",
+    "Design",
+    "Growth",
+    "Passion",
+    "Vision",
+    "Win"
 ];
 
 const colors = [
-    "#ff4757",
-    "#1e90ff",
-    "#2ed573",
-    "#ffa502",
-    "#e84393",
-    "#00cec9",
-    "#6c5ce7",
-    "#fd79a8"
+    "#FF6B6B",
+    "#4ECDC4",
+    "#45B7D1",
+    "#A66CFF",
+    "#2ECC71",
+    "#F39C12",
+    "#FF9FF3",
+    "#00C9A7"
 ];
 
 document.addEventListener("click", (e) => {
+
     const circle = document.createElement("div");
-    circle.classList.add("circle");
+    circle.className = "circle";
 
-    // Random word
-    circle.textContent = words[Math.floor(Math.random() * words.length)];
+    circle.innerText =
+        words[Math.floor(Math.random() * words.length)];
 
-    // Random color
-    circle.style.backgroundColor =
+    circle.style.background =
         colors[Math.floor(Math.random() * colors.length)];
 
-    circle.style.left = `${e.clientX - 40}px`;
-    circle.style.top = `${e.clientY - 40}px`;
+    circle.style.left = e.clientX + "px";
+    circle.style.top = e.clientY + "px";
 
     document.body.appendChild(circle);
 
-    // Remove after animation
+    requestAnimationFrame(() => {
+        circle.classList.add("show");
+    });
+
+    // Stay on screen while growing
     setTimeout(() => {
         circle.classList.add("hide");
-    }, 1200);
+    }, 5000);
 
+    // Remove after fade-out
     setTimeout(() => {
         circle.remove();
-    }, 1800);
+    }, 6200);
+
 });
