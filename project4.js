@@ -30,14 +30,20 @@
 
 // })
 
- const buttons = document.querySelectorAll('button');
- const body=document.body;
+//  const buttons = document.querySelectorAll('button');
+//  const body=document.body;
 
- buttons.forEach((button)=>{
+//  buttons.forEach((button)=>{
  
-   button.addEventListener('click',()=>{
+//    button.addEventListener('click',()=>{
     
-    body.style.backgroundColor = button.id;
+//     body.style.backgroundColor = button.id;
 
-   })
- })
+//    })
+//  })
+
+const root =document.getElementById('root');
+
+root.addEventListener('click' ,(event)=>{
+   document.body.style.backgroundColor = event.target.id;
+})
