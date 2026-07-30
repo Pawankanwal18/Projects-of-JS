@@ -62,4 +62,4 @@ document.addEventListener("click", (e) => {
         circle.remove();
     }, 6200);
 
-});
+});  
