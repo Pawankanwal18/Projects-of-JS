@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Quiz Arena - Test Your Cricket IQ</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="project6.css">
+</head>
+<body>
+    <div class="stadium-bg"></div>
+    <div class="overlay"></div>
+
+    <div class="main-wrapper">
+        <!-- Top Navigation Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-trophy glow-icon"></i>
+                <h1>CRICKET<span>QUIZ ARENA</span></h1>
+            </div>
+            <div class="header-actions">
+                <button id="sound-btn" class="icon-btn" title="Toggle Sound">
+                    <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main App Container -->
+        <main class="app-container">
+            <!-- SCREEN 1: LOBBY / START SCREEN -->
+            <section id="start-screen" class="screen active">
+                <div class="hero-card glass">
+                    <div class="badge-tag"><i class="fa-solid fa-baseball-bat-ball"></i> Ultimate Cricket Trivia</div>
+                    <h2>Are You a True Cricket Expert?</h2>
+                    <p>Step onto the pitch, face 10 challenging deliveries, score runs, and lift the Championship Trophy!</p>
+
+                    <form id="quiz-setup-form" onsubmit="return false;">
+                        <div class="form-group">
+                            <label for="player-name"><i class="fa-solid fa-user"></i> Player Name</label>
+                            <input type="text" id="player-name" placeholder="Enter your name" value="Cricket Fan" maxlength="15" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="quiz-category"><i class="fa-solid fa-list-check"></i> Category</label>
+                                <select id="quiz-category">
+                                    <option value="all">🏏 All-Rounder (Mixed)</option>
+                                    <option value="ipl">⚡ IPL & T20 League</option>
+                                    <option value="worldcup">🏆 World Cup History</option>
+                                    <option value="legends">👑 Cricket Legends & Records</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="quiz-difficulty"><i class="fa-solid fa-gauge-high"></i> Pitch Condition</label>
+                                <select id="quiz-difficulty">
+                                    <option value="easy">🟢 Batting Pitch (Easy - 20s)</option>
+                                    <option value="medium" selected>🟡 Balanced Pitch (Medium - 15s)</option>
+                                    <option value="hard">🔴 Green Top (Hard - 10s)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Match Rules -->
+                        <div class="rules-card">
+                            <h3><i class="fa-solid fa-shield-halved"></i> Match Rules</h3>
+                            <div class="rules-grid">
+                                <div class="rule-item">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span><strong>Correct Answer:</strong> +4 Runs (+2 Speed Bonus)</span>
+                                </div>
+                                <div class="rule-item">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                    <span><strong>Wrong / Timeout:</strong> Wicket lost!</span>
+                                </div>
+                                <div class="rule-item">
+                                    <i class="fa-solid fa-fire"></i>
+                                    <span><strong>Streak:</strong> 3+ correct doubles your run bonus!</span>
+                                </div>
+                                <div class="rule-item">
+                                    <i class="fa-solid fa-clock"></i>
+                                    <span><strong>Format:</strong> 10 Balls (Questions) match</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- High Score Display -->
+                        <div class="high-score-banner">
+                            <i class="fa-solid fa-crown gold-icon"></i>
+                            <span>Personal Best: <strong id="best-score-display">0 Runs</strong></span>
+                        </div>
+
+                        <button type="button" id="start-btn" class="btn btn-primary btn-lg">
+                            <i class="fa-solid fa-play"></i> START MATCH
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SCREEN 2: GAMEPLAY / ARENA -->
+            <section id="quiz-screen" class="screen">
+                <!-- Scoreboard HUD -->
+                <div class="scoreboard-hud glass">
+                    <div class="score-box">
+                        <span class="label">SCORE</span>
+                        <div class="value"><span id="hud-runs">0</span>/<span id="hud-wickets">0</span></div>
+                    </div>
+
+                    <div class="match-info">
+                        <div class="overs-badge">
+                            BALL <span id="hud-ball">1</span>/10
+                        </div>
+                        <div class="streak-badge" id="streak-badge">
+                            <i class="fa-solid fa-fire"></i> <span id="hud-streak">0</span> STREAK
+                        </div>
+                    </div>
+
+                    <div class="timer-box">
+                        <div class="circular-timer">
+                            <svg class="timer-svg" viewBox="0 0 36 36">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path id="timer-progress" class="circle-progress" stroke-dasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <span id="hud-timer">15</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-bar-container">
+                    <div id="quiz-progress-bar" class="progress-bar-fill"></div>
+                </div>
+
+                <!-- Question Card -->
+                <div class="question-card glass">
+                    <div class="question-header">
+                        <span id="question-category-tag" class="category-tag">World Cup</span>
+                        <span id="question-difficulty-tag" class="difficulty-tag easy">Medium</span>
+                    </div>
+
+                    <h3 id="question-text">Loading question...</h3>
+
+                    <!-- Options Container -->
+                    <div id="options-container" class="options-grid">
+                        <!-- Options generated via JS -->
+                    </div>
+
+                    <!-- Explanation Box -->
+                    <div id="explanation-box" class="explanation-box hidden">
+                        <div class="explanation-title" id="explanation-title">
+                            <i class="fa-solid fa-lightbulb"></i> Match Commentary
+                        </div>
+                        <p id="explanation-text">Correct answer description will appear here.</p>
+                    </div>
+
+                    <!-- Next Button -->
+                    <div class="quiz-footer">
+                        <button id="next-btn" class="btn btn-secondary btn-md hidden">
+                            Next Ball <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SCREEN 3: MATCH SCORECARD / RESULTS -->
+            <section id="result-screen" class="screen">
+                <div class="result-card glass">
+                    <div class="result-header">
+                        <div id="trophy-container" class="trophy-box">
+                            <i class="fa-solid fa-trophy trophy-gold" id="result-trophy"></i>
+                        </div>
+                        <h2 id="result-title">Victory! What a Knock!</h2>
+                        <p id="result-subtitle" class="player-congrats">Player Name</p>
+                    </div>
+
+                    <!-- Scorecard Grid -->
+                    <div class="scorecard-grid">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-baseball-bat-ball stat-icon"></i>
+                            <div class="stat-value" id="final-runs">0</div>
+                            <div class="stat-label">Total Runs Scored</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <i class="fa-solid fa-skull stat-icon"></i>
+                            <div class="stat-value" id="final-wickets">0/10</div>
+                            <div class="stat-label">Wickets Lost</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <i class="fa-solid fa-bolt stat-icon"></i>
+                            <div class="stat-value" id="final-strike-rate">0%</div>
+                            <div class="stat-label">Strike Rate</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <i class="fa-solid fa-bullseye stat-icon"></i>
+                            <div class="stat-value" id="final-accuracy">0%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+
+                    <!-- New High Score Alert -->
+                    <div id="new-high-score-tag" class="new-high-score hidden">
+                        <i class="fa-solid fa-star"></i> NEW PERSONAL BEST SCORE! <i class="fa-solid fa-star"></i>
+                    </div>
+
+                    <!-- Review Section Toggle -->
+                    <div class="review-section">
+                        <h3><i class="fa-solid fa-clipboard-list"></i> Ball-by-Ball Match Summary</h3>
+                        <div id="review-list" class="review-list">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="result-actions">
+                        <button id="replay-btn" class="btn btn-primary">
+                            <i class="fa-solid fa-rotate-right"></i> Play Again
+                        </button>
+                        <button id="menu-btn" class="btn btn-secondary">
+                            <i class="fa-solid fa-house"></i> Main Menu
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Cricket Quiz Arena &copy; 2026 | Built for Cricket Fans 🏏</p>
+        </footer>
+    </div>
+
+    <script src="project6.js"></script>
+</body>
+</html>

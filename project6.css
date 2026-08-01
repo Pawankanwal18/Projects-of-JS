@@ -1,0 +1,931 @@
+/* ==========================================
+   CRICKET QUIZ ARENA - STYLESHEET
+   ========================================== */
+
+:root {
+    --bg-dark: #090d16;
+    --bg-card: rgba(15, 23, 42, 0.75);
+    --bg-card-hover: rgba(30, 41, 59, 0.85);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --border-glow: rgba(16, 185, 129, 0.3);
+    
+    --primary-green: #10b981;
+    --primary-green-glow: #059669;
+    --accent-gold: #fbbf24;
+    --accent-gold-glow: #f59e0b;
+    --accent-blue: #38bdf8;
+    --accent-red: #f43f5e;
+
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-body);
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Stadium Background Effects */
+.stadium-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 20% 70%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(16, 185, 129, 0.2) 0%, transparent 70%),
+        #070b11;
+    z-index: -2;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+    background-size: 24px 24px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Main Layout */
+.main-wrapper {
+    width: 100%;
+    max-width: 850px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+/* App Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo i {
+    font-size: 1.8rem;
+    color: var(--accent-gold);
+    filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.6));
+}
+
+.logo h1 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--text-main);
+}
+
+.logo h1 span {
+    color: var(--primary-green);
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.icon-btn:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    transform: scale(1.05);
+}
+
+/* Glassmorphism Card Base */
+.glass {
+    background: var(--bg-card);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    padding: 32px;
+}
+
+/* App Container & Screens */
+.app-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen {
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================================
+   START / LOBBY SCREEN STYLES
+   ========================================== */
+.hero-card {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 250px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 30px;
+    color: var(--primary-green);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.hero-card h2 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+
+/* Setup Form */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label i {
+    color: var(--primary-green);
+}
+
+.form-group input,
+.form-group select {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+}
+
+/* Rules Card */
+.rules-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.rules-card h3 {
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+.rule-item i {
+    color: var(--primary-green);
+    font-size: 0.9rem;
+}
+
+/* High Score Banner */
+.high-score-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px dashed rgba(251, 191, 36, 0.3);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+}
+
+.gold-icon {
+    color: var(--accent-gold);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 28px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    border: none;
+    transition: var(--transition-fast);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-glow) 100%);
+    color: #ffffff;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+    width: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+    filter: brightness(1.1);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================
+   QUIZ ARENA SCREEN STYLES
+   ========================================== */
+
+/* Scoreboard HUD */
+.scoreboard-hud {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    margin-bottom: 16px;
+}
+
+.score-box {
+    text-align: left;
+}
+
+.score-box .label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+.score-box .value {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--primary-green);
+    line-height: 1;
+}
+
+.match-info {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.overs-badge, .streak-badge {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.streak-badge {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.3);
+    color: var(--accent-gold);
+}
+
+/* Circular Timer */
+.timer-box {
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+.circular-timer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.circle-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 3.5;
+}
+
+.circle-progress {
+    fill: none;
+    stroke: var(--primary-green);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    transition: stroke-dasharray 1s linear, stroke 0.3s ease;
+}
+
+.circle-progress.warning {
+    stroke: var(--accent-gold);
+}
+
+.circle-progress.danger {
+    stroke: var(--accent-red);
+}
+
+#hud-timer {
+    position: absolute;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 10%;
+    background: linear-gradient(90deg, var(--primary-green) 0%, var(--accent-blue) 100%);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+/* Question Card */
+.question-card {
+    position: relative;
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.category-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent-blue);
+    background: rgba(56, 189, 248, 0.1);
+    padding: 4px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.difficulty-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.difficulty-tag.easy {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--primary-green);
+}
+
+.difficulty-tag.medium {
+    background: rgba(251, 191, 36, 0.15);
+    color: var(--accent-gold);
+}
+
+.difficulty-tag.hard {
+    background: rgba(244, 63, 94, 0.15);
+    color: var(--accent-red);
+}
+
+.question-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 24px;
+    color: var(--text-main);
+}
+
+/* Options Grid */
+.options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.option-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+
+.option-btn .opt-prefix {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.option-btn .opt-text {
+    flex: 1;
+}
+
+.option-btn .opt-icon {
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
+    transform: translateX(4px);
+}
+
+.option-btn:hover:not(:disabled) .opt-prefix {
+    background: var(--primary-green);
+    color: #ffffff;
+}
+
+/* Option States after Selection */
+.option-btn.correct {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: var(--primary-green) !important;
+    color: #ffffff;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+}
+
+.option-btn.correct .opt-prefix {
+    background: var(--primary-green);
+    color: #ffffff;
+}
+
+.option-btn.correct .opt-icon {
+    opacity: 1;
+    color: var(--primary-green);
+}
+
+.option-btn.wrong {
+    background: rgba(244, 63, 94, 0.2) !important;
+    border-color: var(--accent-red) !important;
+    color: #ffffff;
+    animation: shake 0.4s ease;
+}
+
+.option-btn.wrong .opt-prefix {
+    background: var(--accent-red);
+    color: #ffffff;
+}
+
+.option-btn.wrong .opt-icon {
+    opacity: 1;
+    color: var(--accent-red);
+}
+
+.option-btn:disabled {
+    cursor: default;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+/* Explanation Box */
+.explanation-box {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.explanation-box.hidden {
+    display: none;
+}
+
+.explanation-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.explanation-box p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.quiz-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================
+   RESULTS / MATCH SCORECARD STYLES
+   ========================================== */
+.result-card {
+    text-align: center;
+}
+
+.trophy-box {
+    margin-bottom: 12px;
+}
+
+.trophy-gold {
+    font-size: 4rem;
+    color: var(--accent-gold);
+    filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.7));
+    animation: bounceTrophy 2s infinite ease-in-out;
+}
+
+@keyframes bounceTrophy {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.result-header h2 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    font-weight: 900;
+    margin-bottom: 6px;
+}
+
+.player-congrats {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 24px;
+}
+
+/* Scorecard Grid */
+.scorecard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    text-align: center;
+    transition: var(--transition-fast);
+}
+
+.stat-card:hover {
+    border-color: var(--primary-green);
+    transform: translateY(-2px);
+}
+
+.stat-icon {
+    font-size: 1.3rem;
+    color: var(--primary-green);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* New High Score Alert */
+.new-high-score {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+}
+
+/* Ball-by-ball Review */
+.review-section {
+    text-align: left;
+    margin-bottom: 28px;
+}
+
+.review-section h3 {
+    font-size: 1rem;
+    color: var(--text-main);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.review-list {
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 6px;
+}
+
+.review-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.review-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.review-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.85rem;
+}
+
+.review-item.correct-item {
+    border-left: 4px solid var(--primary-green);
+}
+
+.review-item.wrong-item {
+    border-left: 4px solid var(--accent-red);
+}
+
+.review-q-title {
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 4px;
+}
+
+.review-ans {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.review-ans .user-val {
+    font-weight: 600;
+}
+
+.review-ans .user-val.correct-text { color: var(--primary-green); }
+.review-ans .user-val.wrong-text { color: var(--accent-red); }
+
+.result-actions {
+    display: flex;
+    gap: 16px;
+}
+
+.result-actions .btn {
+    flex: 1;
+}
+
+/* Footer */
+.app-footer {
+    text-align: center;
+    padding: 20px 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: auto;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN (MOBILE & TABLET)
+   ========================================== */
+@media (max-width: 640px) {
+    .main-wrapper {
+        padding: 12px;
+    }
+
+    .app-header {
+        padding: 12px 16px;
+    }
+
+    .logo h1 {
+        font-size: 1.1rem;
+    }
+
+    .glass {
+        padding: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .rules-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scoreboard-hud {
+        padding: 12px 16px;
+    }
+
+    .score-box .value {
+        font-size: 1.4rem;
+    }
+
+    .scorecard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+}
