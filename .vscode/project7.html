@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover your zodiac sign, read daily horoscopes, and check compatibility with our beautiful astrology app.">
+    <title>Celestia — Your Cosmic Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="project7.css">
+</head>
+<body>
+    <!-- Animated Stars Canvas -->
+    <canvas id="starsCanvas"></canvas>
+
+    <!-- Shooting Stars -->
+    <div class="shooting-stars">
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+        <div class="shooting-star"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <span class="nav-icon">✦</span>
+            <span class="nav-title">Celestia</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#finder">Zodiac Finder</a></li>
+            <li><a href="#signs">Signs</a></li>
+            <li><a href="#horoscope">Horoscope</a></li>
+            <li><a href="#compatibility">Compatibility</a></li>
+        </ul>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-badge">✧ Cosmic Wisdom Awaits ✧</div>
+            <h1 class="hero-title">
+                Unlock the <span class="gradient-text">Secrets</span><br>
+                of the <span class="gradient-text">Stars</span>
+            </h1>
+            <p class="hero-subtitle">
+                Explore the celestial map written in the cosmos. Discover your zodiac sign, 
+                read your daily horoscope, and find your cosmic compatibility.
+            </p>
+            <div class="hero-buttons">
+                <a href="#finder" class="btn btn-primary">
+                    <span>Discover Your Sign</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="#signs" class="btn btn-secondary">Explore All Signs</a>
+            </div>
+        </div>
+        <div class="hero-zodiac-wheel">
+            <div class="zodiac-wheel" id="zodiacWheel">
+                <div class="wheel-center">
+                    <div class="wheel-sun">☉</div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll to explore</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- Zodiac Finder Section -->
+    <section class="section finder-section" id="finder">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">✦ Discover Yourself</span>
+                <h2 class="section-title">What's Your <span class="gradient-text">Zodiac Sign</span>?</h2>
+                <p class="section-desc">Enter your birth date to unveil your cosmic identity and celestial personality.</p>
+            </div>
+            <div class="finder-card">
+                <div class="finder-form">
+                    <div class="date-input-group">
+                        <label for="birthDate">Your Birth Date</label>
+                        <input type="date" id="birthDate" class="date-input">
+                    </div>
+                    <button class="btn btn-primary btn-lg" id="findSignBtn">
+                        <span>Reveal My Sign</span>
+                        <span class="btn-sparkle">✨</span>
+                    </button>
+                </div>
+                <div class="finder-result" id="finderResult">
+                    <div class="result-placeholder">
+                        <div class="placeholder-icon">🔮</div>
+                        <p>Your cosmic identity awaits discovery...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Zodiac Signs Section -->
+    <section class="section signs-section" id="signs">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">✦ The Zodiac</span>
+                <h2 class="section-title">Explore the <span class="gradient-text">12 Signs</span></h2>
+                <p class="section-desc">Each sign carries unique energy and cosmic wisdom. Click on any sign to learn more.</p>
+            </div>
+            <div class="element-filters">
+                <button class="filter-btn active" data-filter="all">All Signs</button>
+                <button class="filter-btn" data-filter="fire">🔥 Fire</button>
+                <button class="filter-btn" data-filter="earth">🌍 Earth</button>
+                <button class="filter-btn" data-filter="air">💨 Air</button>
+                <button class="filter-btn" data-filter="water">💧 Water</button>
+            </div>
+            <div class="signs-grid" id="signsGrid">
+                <!-- Signs will be injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Sign Detail Modal -->
+    <div class="modal-overlay" id="signModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Horoscope Section -->
+    <section class="section horoscope-section" id="horoscope">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">✦ Daily Guidance</span>
+                <h2 class="section-title">Today's <span class="gradient-text">Horoscope</span></h2>
+                <p class="section-desc">Select your zodiac sign to receive your personalized cosmic reading for today.</p>
+            </div>
+            <div class="horoscope-selector" id="horoscopeSelector">
+                <!-- Sign buttons injected by JS -->
+            </div>
+            <div class="horoscope-display" id="horoscopeDisplay">
+                <div class="horoscope-placeholder">
+                    <div class="placeholder-orbit">
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-ring"></div>
+                        <div class="orbit-dot"></div>
+                    </div>
+                    <p>Select your sign to reveal today's cosmic message</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Compatibility Section -->
+    <section class="section compatibility-section" id="compatibility">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">✦ Cosmic Connection</span>
+                <h2 class="section-title">Zodiac <span class="gradient-text">Compatibility</span></h2>
+                <p class="section-desc">Discover the cosmic chemistry between two zodiac signs.</p>
+            </div>
+            <div class="compat-card">
+                <div class="compat-selectors">
+                    <div class="compat-select-group">
+                        <label>Your Sign</label>
+                        <select id="sign1" class="compat-select">
+                            <option value="">Choose...</option>
+                        </select>
+                        <div class="compat-sign-display" id="sign1Display">?</div>
+                    </div>
+                    <div class="compat-heart">
+                        <span class="heart-icon">💫</span>
+                    </div>
+                    <div class="compat-select-group">
+                        <label>Partner's Sign</label>
+                        <select id="sign2" class="compat-select">
+                            <option value="">Choose...</option>
+                        </select>
+                        <div class="compat-sign-display" id="sign2Display">?</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-lg" id="checkCompatBtn">
+                    <span>Check Compatibility</span>
+                    <span class="btn-sparkle">💖</span>
+                </button>
+                <div class="compat-result" id="compatResult">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="nav-icon">✦</span>
+                    <span class="nav-title">Celestia</span>
+                    <p class="footer-tagline">Your personal guide to the cosmos.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#home">Home</a>
+                    <a href="#finder">Zodiac Finder</a>
+                    <a href="#signs">Signs</a>
+                    <a href="#horoscope">Horoscope</a>
+                    <a href="#compatibility">Compatibility</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Celestia. Crafted under the stars. ✦</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="project7.js"></script>
+</body>
+</html>
