@@ -626,7 +626,14 @@ function checkCompatibility() {
 // ---- Finder Form ----
 function initFinderForm() {
     document.getElementById("findSignBtn").addEventListener("click", () => {
+        const firstName = document.getElementById("firstName").value.trim();
+        const surname = document.getElementById("surname").value.trim();
         const dateInput = document.getElementById("birthDate").value;
+
+        if (!firstName || !surname) {
+            alert("Please enter your first name and surname!");
+            return;
+        }
         if (!dateInput) {
             alert("Please select your birth date!");
             return;
@@ -637,7 +644,7 @@ function initFinderForm() {
         const day = date.getDate();
 
         const sign = findZodiacSign(month, day);
-        if (sign) showFinderResult(sign);
+        if (sign) showFinderResult(sign, firstName, surname);
     });
 }
 
@@ -656,11 +663,13 @@ function findZodiacSign(month, day) {
     });
 }
 
-function showFinderResult(sign) {
+function showFinderResult(sign, firstName, surname) {
     const result = document.getElementById("finderResult");
+    const fullName = `${firstName} ${surname}`;
     result.innerHTML = `
         <div class="sign-reveal">
             <div class="sign-reveal-symbol">${sign.symbol}</div>
+            <div class="sign-reveal-greeting">✨ ${fullName} ✨</div>
             <div class="sign-reveal-name">${sign.name}</div>
             <div class="sign-reveal-dates">${sign.dates}</div>
             <div class="sign-reveal-element element-${sign.element}" style="margin-bottom:16px;">

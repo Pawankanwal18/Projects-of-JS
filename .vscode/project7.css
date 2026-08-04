@@ -632,6 +632,18 @@ img { max-width: 100%; }
     margin-bottom: 8px;
 }
 
+.sign-reveal-greeting {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 .sign-reveal-element {
     display: inline-block;
     padding: 6px 16px;
