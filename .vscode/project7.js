@@ -197,6 +197,41 @@ const zodiacSigns = [
         luckyColor: "Sea Green"
     }
 ];
+// ---- Name-Based Zodiac Letter Mapping (Vedic Astrology) ----
+const nameToZodiacMap = [
+    { sign: "Aries",       syllables: ["a", "b", "chu", "che", "cho", "la", "lee", "lu", "le", "lo"] },
+    { sign: "Taurus",      syllables: ["c", "d", "e", "i", "va", "vi", "vu", "he", "ho"] },
+    { sign: "Gemini",      syllables: ["f", "ka", "ki", "ku", "gha", "ing", "chha", "ke", "ko"] },
+    { sign: "Cancer",      syllables: ["g", "h", "hi", "hu", "da", "di", "du", "de"] },
+    { sign: "Leo",         syllables: ["j", "ma", "mi", "mu", "me", "mo", "ta", "ti", "tu", "te"] },
+    { sign: "Virgo",       syllables: ["k", "l", "to", "pa", "pee", "poo", "sha", "na", "thha", "pe", "po"] },
+    { sign: "Libra",       syllables: ["m", "n", "ra", "ree", "roo", "re", "ro", "taa", "tee", "too"] },
+    { sign: "Scorpio",     syllables: ["o", "p", "na", "ni", "nu", "ne", "no", "ya", "yi", "yu"] },
+    { sign: "Sagittarius", syllables: ["q", "r", "bha", "dha"] },
+    { sign: "Capricorn",   syllables: ["s", "t", "bho", "ja", "ji", "ju", "je", "jo", "kha", "khi", "khu"] },
+    { sign: "Aquarius",    syllables: ["u", "v", "sa", "si", "su", "se", "so"] },
+    { sign: "Pisces",      syllables: ["w", "x", "y", "z", "tha", "jha", "ana"] }
+];
+
+function findSignByName(name) {
+    const lowerName = name.toLowerCase().trim();
+    if (!lowerName) return null;
+
+    // Try longest syllable match first for accuracy
+    let bestMatch = null;
+    let bestLen = 0;
+
+    for (const entry of nameToZodiacMap) {
+        for (const syl of entry.syllables) {
+            if (lowerName.startsWith(syl) && syl.length > bestLen) {
+                bestMatch = entry.sign;
+                bestLen = syl.length;
+            }
+        }
+    }
+
+    return bestMatch ? zodiacSigns.find(s => s.name === bestMatch) : null;
+}
 
 // ---- Horoscope Readings Pool ----
 const horoscopeReadings = [
@@ -666,19 +701,130 @@ function findZodiacSign(month, day) {
 function showFinderResult(sign, firstName, surname) {
     const result = document.getElementById("finderResult");
     const fullName = `${firstName} ${surname}`;
-    result.innerHTML = `
-        <div class="sign-reveal">
-            <div class="sign-reveal-symbol">${sign.symbol}</div>
-            <div class="sign-reveal-greeting">✨ ${fullName} ✨</div>
-            <div class="sign-reveal-name">${sign.name}</div>
-            <div class="sign-reveal-dates">${sign.dates}</div>
-            <div class="sign-reveal-element element-${sign.element}" style="margin-bottom:16px;">
-                ${getElementEmoji(sign.element)} ${sign.element.charAt(0).toUpperCase() + sign.element.slice(1)} Sign
+    const nameSign = findSignByName(firstName);
+
+    // Find which syllable matched
+    let matchedSyllable = "";
+    if (nameSign) {
+        const entry = nameToZodiacMap.find(e => e.sign === nameSign.name);
+        if (entry) {
+            const lower = firstName.toLowerCase();
+            // Find longest matching syllable
+            let best = "";
+            for (const syl of entry.syllables) {
+                if (lower.startsWith(syl) && syl.length > best.length) best = syl;
+            }
+            matchedSyllable = best.toUpperCase();
+        }
+    }
+
+    const signsMatch = nameSign && nameSign.name === sign.name;
+
+    let nameSignHTML = "";
+    if (nameSign) {
+        nameSignHTML = `
+            <div class="reveal-card reveal-card-name">
+                <div class="reveal-card-label">🔤 Name Sign (Vedic)</div>
+                <div class="reveal-card-symbol">${nameSign.symbol}</div>
+                <div class="reveal-card-sign-name">${nameSign.name}</div>
+                <div class="reveal-card-dates">${nameSign.dates}</div>
+                <div class="reveal-card-element element-${nameSign.element}">
+                    ${getElementEmoji(nameSign.element)} ${nameSign.element.charAt(0).toUpperCase() + nameSign.element.slice(1)}
+                </div>
+                <div class="reveal-card-syllable">Letter match: <strong>"${matchedSyllable}"</strong></div>
             </div>
-            <p class="sign-reveal-desc">${sign.description}</p>
+        `;
+    } else {
+        nameSignHTML = `
+            <div class="reveal-card reveal-card-name reveal-card-unknown">
+                <div class="reveal-card-label">🔤 Name Sign (Vedic)</div>
+                <div class="reveal-card-symbol">?</div>
+                <div class="reveal-card-sign-name">Not Found</div>
+                <div class="reveal-card-dates">No matching syllable</div>
+            </div>
+        `;
+    }
+
+    const alignmentHTML = signsMatch ? `
+        <div class="cosmic-alignment">
+            <div class="alignment-glow"></div>
+            <div class="alignment-icon">🌟</div>
+            <div class="alignment-title">Perfect Cosmic Alignment!</div>
+            <p class="alignment-desc">Your birth sign and name sign are both <strong>${sign.name}</strong> — the stars and your name are in perfect harmony. This is a powerful celestial alignment!</p>
+        </div>
+    ` : (nameSign ? `
+        <div class="cosmic-alignment cosmic-dual">
+            <div class="alignment-icon">✨</div>
+            <div class="alignment-title">Dual Cosmic Energy</div>
+            <p class="alignment-desc">You carry the energy of <strong>${sign.name}</strong> from the stars and <strong>${nameSign.name}</strong> from your name. This blend of ${sign.element} & ${nameSign.element} gives you a unique cosmic signature!</p>
+        </div>
+    ` : "");
+
+    result.innerHTML = `
+        <div class="sign-reveal-enhanced">
+            <div class="sign-reveal-greeting">✨ ${fullName} ✨</div>
+            <div class="reveal-cards-container">
+                <div class="reveal-card reveal-card-birth">
+                    <div class="reveal-card-label">🌙 Birth Date Sign</div>
+                    <div class="reveal-card-symbol">${sign.symbol}</div>
+                    <div class="reveal-card-sign-name">${sign.name}</div>
+                    <div class="reveal-card-dates">${sign.dates}</div>
+                    <div class="reveal-card-element element-${sign.element}">
+                        ${getElementEmoji(sign.element)} ${sign.element.charAt(0).toUpperCase() + sign.element.slice(1)}
+                    </div>
+                </div>
+                <div class="reveal-vs">⚡</div>
+                ${nameSignHTML}
+            </div>
+            ${alignmentHTML}
+            <div class="reveal-details">
+                <h3 class="reveal-details-title">✦ Your Birth Sign Profile</h3>
+                <p class="sign-reveal-desc">${sign.description}</p>
+                <div class="reveal-stats-grid">
+                    <div class="reveal-stat">
+                        <span class="reveal-stat-label">Ruling Planet</span>
+                        <span class="reveal-stat-value">${sign.planet}</span>
+                    </div>
+                    <div class="reveal-stat">
+                        <span class="reveal-stat-label">Element</span>
+                        <span class="reveal-stat-value">${getElementEmoji(sign.element)} ${sign.element.charAt(0).toUpperCase() + sign.element.slice(1)}</span>
+                    </div>
+                    <div class="reveal-stat">
+                        <span class="reveal-stat-label">Modality</span>
+                        <span class="reveal-stat-value">${sign.modality}</span>
+                    </div>
+                    <div class="reveal-stat">
+                        <span class="reveal-stat-label">Lucky Color</span>
+                        <span class="reveal-stat-value">${sign.luckyColor}</span>
+                    </div>
+                    <div class="reveal-stat">
+                        <span class="reveal-stat-label">Lucky Numbers</span>
+                        <span class="reveal-stat-value">${sign.luckyNumbers.join(", ")}</span>
+                    </div>
+                    <div class="reveal-stat">
+                        <span class="reveal-stat-label">Best Matches</span>
+                        <span class="reveal-stat-value">${sign.compatibility.join(", ")}</span>
+                    </div>
+                </div>
+                <div class="reveal-traits">
+                    <div class="reveal-trait-group">
+                        <h4>💪 Strengths</h4>
+                        <div class="trait-tags">
+                            ${sign.strengths.map(s => `<span class="trait-tag positive">${s}</span>`).join("")}
+                        </div>
+                    </div>
+                    <div class="reveal-trait-group">
+                        <h4>⚡ Challenges</h4>
+                        <div class="trait-tags">
+                            ${sign.weaknesses.map(w => `<span class="trait-tag negative">${w}</span>`).join("")}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }
+
 
 // ---- Navigation ----
 function initNavigation() {
