@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astro Nova — Decode Your Cosmic Blueprint</title>
+  <meta name="description" content="Astro Nova: Enter your name and date of birth to unlock your personalized zodiac reading, birth chart, and cosmic guidance." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="project7.css" />
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="page-shell">
+    <!-- ───────── HEADER ───────── -->
+    <header class="topbar" id="topbar">
+      <a href="#" class="brand">
+        <span class="brand-icon">
+          <span class="brand-orb"></span>
+        </span>
+        <span class="brand-text">Astro Nova</span>
+      </a>
+
+      <nav class="main-nav" id="main-nav">
+        <a href="#hero" class="active">Home</a>
+        <a href="#birth-form">Birth Chart</a>
+        <a href="#features">Features</a>
+        <a href="#tarot">Oracle</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <a class="btn btn-primary btn-sm" href="#birth-form">Get Started</a>
+      </div>
+    </header>
+
+    <!-- ───────── HERO ───────── -->
+    <section class="hero reveal" id="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">
+          <span class="pulse-dot"></span>
+          <span>LIVE COSMIC FIELD</span>
+        </div>
+        <h1>Decode your <span class="gradient-text">cosmic blueprint</span>.</h1>
+        <p class="hero-text">
+          Enter your name and date of birth to unlock a personalized zodiac reading, birth chart insights, and cosmic guidance tailored just for you.
+        </p>
+        <div class="cta-row">
+          <a href="#birth-form" class="btn btn-primary btn-lg">Discover Your Sign</a>
+          <a href="#features" class="btn btn-ghost btn-lg">Learn More</a>
+        </div>
+      </div>
+
+      <aside class="cosmic-panel">
+        <div class="panel-frame">
+          <div class="panel-glass">
+            <div class="orb-wrap">
+              <div class="orbit-system">
+                <div class="orbit-ring outer"></div>
+                <div class="orbit-ring mid"></div>
+                <div class="orbit-ring inner"></div>
+                <div class="sun-core">
+                  <span class="sun-icon">☼</span>
+                </div>
+                <span class="orbit-node node-one">♈</span>
+                <span class="orbit-node node-two">♎</span>
+                <span class="orbit-node node-three">♓</span>
+              </div>
+            </div>
+            <div class="panel-tagline">
+              <span class="section-kicker">Today's Cosmic Energy</span>
+              <p class="panel-date" id="live-date"></p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ───────── BIRTH CHART FORM ───────── -->
+    <section class="form-section reveal" id="birth-form">
+      <div class="section-heading centered">
+        <span class="section-kicker">Your Cosmic Identity</span>
+        <h2>Generate Your Birth Chart</h2>
+        <p class="section-sub">Enter your details below and the stars will reveal your zodiac sign, element, ruling planet, and a personalized cosmic message.</p>
+      </div>
+
+      <form class="birth-form-card" id="birthChartForm" autocomplete="off">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="firstName" name="firstName" placeholder="e.g. Pawan" required />
+            </div>
+            <span class="form-error" id="firstNameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="surname">Surname</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
+              <input type="text" id="surname" name="surname" placeholder="e.g. Kanwal" required />
+            </div>
+            <span class="form-error" id="surnameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="dob">Date of Birth</label>
+            <div class="input-wrap">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </span>
+              <input type="date" id="dob" name="dob" required />
+            </div>
+            <span class="form-error" id="dobError"></span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg btn-submit" id="submitBtn">
+          <span class="btn-text">Reveal My Cosmic Blueprint</span>
+          <span class="btn-loader" id="btnLoader"></span>
+        </button>
+      </form>
+    </section>
+
+    <!-- ───────── RESULT PANEL (hidden by default) ───────── -->
+    <section class="result-section" id="resultSection">
+      <div class="result-card reveal-result">
+        <button class="result-close" id="resultClose" aria-label="Close results">&times;</button>
+
+        <div class="result-header">
+          <div class="result-zodiac-icon" id="resultIcon"></div>
+          <div>
+            <span class="section-kicker">Your Zodiac Identity</span>
+            <h2 class="result-name" id="resultName"></h2>
+          </div>
+        </div>
+
+        <div class="result-sign-row">
+          <div class="result-sign-main">
+            <span class="result-sign-symbol" id="resultSymbol"></span>
+            <div>
+              <h3 class="result-sign-name" id="resultSign"></h3>
+              <span class="result-sign-dates" id="resultDates"></span>
+            </div>
+          </div>
+          <span class="result-element-badge" id="resultElement"></span>
+        </div>
+
+        <div class="result-details-grid">
+          <div class="detail-card">
+            <span class="detail-label">Ruling Planet</span>
+            <span class="detail-value" id="resultPlanet"></span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Element</span>
+            <span class="detail-value" id="resultElementName"></span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Quality</span>
+            <span class="detail-value" id="resultQuality"></span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Lucky Number</span>
+            <span class="detail-value" id="resultLucky"></span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Lucky Color</span>
+            <span class="detail-value" id="resultColor"></span>
+          </div>
+          <div class="detail-card">
+            <span class="detail-label">Compatibility</span>
+            <span class="detail-value" id="resultCompat"></span>
+          </div>
+        </div>
+
+        <div class="result-traits">
+          <h4>Key Traits</h4>
+          <div class="traits-list" id="resultTraits"></div>
+        </div>
+
+        <div class="result-message">
+          <h4>Your Cosmic Message</h4>
+          <p id="resultMessage"></p>
+        </div>
+
+        <div class="result-bars">
+          <h4>Energy Overview</h4>
+          <div class="bar-row">
+            <span>Love</span>
+            <div class="bar-track"><div class="bar-fill love-fill" id="barLove"></div></div>
+            <span class="bar-percent" id="barLovePercent"></span>
+          </div>
+          <div class="bar-row">
+            <span>Career</span>
+            <div class="bar-track"><div class="bar-fill career-fill" id="barCareer"></div></div>
+            <span class="bar-percent" id="barCareerPercent"></span>
+          </div>
+          <div class="bar-row">
+            <span>Health</span>
+            <div class="bar-track"><div class="bar-fill health-fill" id="barHealth"></div></div>
+            <span class="bar-percent" id="barHealthPercent"></span>
+          </div>
+          <div class="bar-row">
+            <span>Luck</span>
+            <div class="bar-track"><div class="bar-fill luck-fill" id="barLuck"></div></div>
+            <span class="bar-percent" id="barLuckPercent"></span>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost btn-lg" id="tryAgainBtn">Try Another Reading</button>
+      </div>
+    </section>
+
+    <!-- ───────── FEATURES ───────── -->
+    <section class="features-section reveal" id="features">
+      <div class="section-heading centered">
+        <span class="section-kicker">Why Astro Nova</span>
+        <h2>Cosmic Features</h2>
+      </div>
+
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </div>
+          <h3>Personalized Readings</h3>
+          <p>AI-powered zodiac analysis based on your exact date of birth, providing deep insights into your cosmic identity.</p>
+        </article>
+
+        <article class="feature-card highlight">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+          <h3>Birth Chart Mapping</h3>
+          <p>Comprehensive birth chart generation that maps your Sun, Moon, and Rising signs for holistic cosmic understanding.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3>Compatibility Analysis</h3>
+          <p>Discover which zodiac signs align with your energy and which cosmic connections will shape your journey.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <h3>Daily Guidance</h3>
+          <p>Receive daily cosmic wisdom tailored to your sign — from career moves to emotional breakthroughs.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────── TAROT / ORACLE ───────── -->
+    <section class="tarot-section reveal" id="tarot">
+      <div class="section-heading centered">
+        <span class="section-kicker">The Oracle</span>
+        <h2>Tonight's Message</h2>
+      </div>
+
+      <div class="tarot-grid">
+        <article class="tarot-card" data-tilt>
+          <span class="tarot-symbol">✧</span>
+          <h3>Wisdom</h3>
+          <p>Let the next decision be guided by what restores your sense of direction.</p>
+          <span class="tag">Air Element</span>
+        </article>
+
+        <article class="tarot-card active-card" data-tilt>
+          <span class="tarot-symbol">☼</span>
+          <h3>Visibility</h3>
+          <p>What you reveal about your direction today can open a new path tomorrow.</p>
+          <span class="tag">Solar Phase</span>
+        </article>
+
+        <article class="tarot-card" data-tilt>
+          <span class="tarot-symbol">☽</span>
+          <h3>Inner Depth</h3>
+          <p>Return to your rhythm and protect the energy that makes you feel safe.</p>
+          <span class="tag">Lunar Cycle</span>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────── CONTACT / NEWSLETTER ───────── -->
+    <section class="contact-section reveal" id="contact">
+      <div class="contact-card">
+        <div class="contact-left">
+          <span class="section-kicker">Stay Connected</span>
+          <h2>Receive Cosmic Updates</h2>
+          <p>Get your daily horoscope and cosmic insights delivered directly to your inbox.</p>
+        </div>
+        <form class="contact-form" id="newsletterForm">
+          <div class="input-wrap">
+            <input type="email" id="newsletterEmail" placeholder="Enter your email address" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ───────── FOOTER ───────── -->
+    <footer class="footer">
+      <div class="footer-top">
+        <div>
+          <span class="brand-text footer-logo">Astro Nova</span>
+          <p class="footer-desc">Decode your cosmic blueprint and align with the universe.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h5>Explore</h5>
+            <a href="#birth-form">Birth Chart</a>
+            <a href="#features">Features</a>
+            <a href="#tarot">Oracle</a>
+          </div>
+          <div class="footer-col">
+            <h5>Legal</h5>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+            <a href="#">Cookie Policy</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span class="footer-copy">© 2026 Astro Nova. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter">𝕏</a>
+          <a href="#" aria-label="Instagram">◎</a>
+          <a href="#" aria-label="GitHub">⌂</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <span class="toast-icon">✓</span>
+    <span class="toast-message" id="toastMessage"></span>
+  </div>
+
+  <script src="project7.js"></script>
+</body>
+</html>
