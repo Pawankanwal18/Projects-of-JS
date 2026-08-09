@@ -2,36 +2,176 @@
 // ASTRO NOVA — Full Interactive JavaScript
 // ============================================
 
-// ─── Zodiac Database ───
+// ─── Zodiac Database (with Indian Rashi names & name-letter mapping) ───
 const ZODIAC_DATA = {
-  aries:       { symbol: '♈', name: 'Aries',       dates: 'Mar 21 – Apr 19',  element: 'Fire',  elementClass: 'fire',  planet: 'Mars',    quality: 'Cardinal', lucky: '9, 18, 27',   color: 'Red',       compat: 'Leo, Sagittarius',    traits: ['Courageous', 'Energetic', 'Confident', 'Passionate', 'Pioneering'], message: 'Your fearless spirit is your greatest gift. The universe is aligning new opportunities that demand your boldness — step forward and lead the way.' },
-  taurus:      { symbol: '♉', name: 'Taurus',      dates: 'Apr 20 – May 20',  element: 'Earth', elementClass: 'earth', planet: 'Venus',   quality: 'Fixed',    lucky: '6, 15, 24',   color: 'Green',     compat: 'Virgo, Capricorn',    traits: ['Reliable', 'Patient', 'Devoted', 'Sensual', 'Grounded'],           message: 'Your steady nature builds empires. Trust the process, nurture your roots, and watch as abundance flows naturally into your life.' },
-  gemini:      { symbol: '♊', name: 'Gemini',      dates: 'May 21 – Jun 20',  element: 'Air',   elementClass: 'air',   planet: 'Mercury', quality: 'Mutable',  lucky: '5, 14, 23',   color: 'Yellow',    compat: 'Libra, Aquarius',     traits: ['Versatile', 'Curious', 'Witty', 'Expressive', 'Social'],           message: 'Your dual nature is a superpower. Every conversation is a doorway — stay curious and let your adaptability carry you to new heights.' },
-  cancer:      { symbol: '♋', name: 'Cancer',      dates: 'Jun 21 – Jul 22',  element: 'Water', elementClass: 'water', planet: 'Moon',    quality: 'Cardinal', lucky: '2, 11, 20',   color: 'Silver',    compat: 'Scorpio, Pisces',     traits: ['Intuitive', 'Nurturing', 'Protective', 'Loyal', 'Imaginative'],    message: 'Your emotional depth is your compass. The moon whispers that healing and deeper connections await — open your heart to receive them.' },
-  leo:         { symbol: '♌', name: 'Leo',         dates: 'Jul 23 – Aug 22',  element: 'Fire',  elementClass: 'fire',  planet: 'Sun',     quality: 'Fixed',    lucky: '1, 10, 19',   color: 'Gold',      compat: 'Aries, Sagittarius',  traits: ['Charismatic', 'Creative', 'Generous', 'Loyal', 'Dramatic'],        message: 'Your radiant light inspires everyone around you. The stars are amplifying your creative force — shine without reservation.' },
-  virgo:       { symbol: '♍', name: 'Virgo',       dates: 'Aug 23 – Sep 22',  element: 'Earth', elementClass: 'earth', planet: 'Mercury', quality: 'Mutable',  lucky: '5, 14, 23',   color: 'Navy Blue', compat: 'Taurus, Capricorn',   traits: ['Analytical', 'Practical', 'Diligent', 'Modest', 'Perfectionist'], message: 'Your attention to detail is a cosmic gift. The universe rewards precision — trust your instincts to refine and perfect your path.' },
-  libra:       { symbol: '♎', name: 'Libra',       dates: 'Sep 23 – Oct 22',  element: 'Air',   elementClass: 'air',   planet: 'Venus',   quality: 'Cardinal', lucky: '6, 15, 24',   color: 'Pink',      compat: 'Gemini, Aquarius',    traits: ['Diplomatic', 'Graceful', 'Fair', 'Harmonious', 'Romantic'],        message: 'Your gift for balance brings peace to chaos. The stars are aligning partnerships that mirror your highest values — embrace harmony.' },
-  scorpio:     { symbol: '♏', name: 'Scorpio',     dates: 'Oct 23 – Nov 21',  element: 'Water', elementClass: 'water', planet: 'Pluto',   quality: 'Fixed',    lucky: '8, 17, 26',   color: 'Crimson',   compat: 'Cancer, Pisces',      traits: ['Intense', 'Resourceful', 'Magnetic', 'Strategic', 'Transformative'], message: 'Your depth of feeling transforms everything it touches. A powerful rebirth is near — surrender to the transformation ahead.' },
-  sagittarius: { symbol: '♐', name: 'Sagittarius', dates: 'Nov 22 – Dec 21',  element: 'Fire',  elementClass: 'fire',  planet: 'Jupiter', quality: 'Mutable',  lucky: '3, 12, 21',   color: 'Purple',    compat: 'Aries, Leo',          traits: ['Adventurous', 'Optimistic', 'Philosophical', 'Free-spirited', 'Honest'], message: 'Your quest for truth is a beacon of light. The cosmos is expanding your horizons — aim your arrow high and trust the journey.' },
-  capricorn:   { symbol: '♑', name: 'Capricorn',   dates: 'Dec 22 – Jan 19',  element: 'Earth', elementClass: 'earth', planet: 'Saturn',  quality: 'Cardinal', lucky: '4, 13, 22',   color: 'Brown',     compat: 'Taurus, Virgo',       traits: ['Ambitious', 'Disciplined', 'Responsible', 'Strategic', 'Wise'],    message: 'Your determination moves mountains. Saturn is rewarding your patience and discipline — the summit is closer than you think.' },
-  aquarius:    { symbol: '♒', name: 'Aquarius',    dates: 'Jan 20 – Feb 18',  element: 'Air',   elementClass: 'air',   planet: 'Uranus',  quality: 'Fixed',    lucky: '7, 16, 25',   color: 'Turquoise', compat: 'Gemini, Libra',       traits: ['Innovative', 'Independent', 'Humanitarian', 'Visionary', 'Unique'], message: 'Your unconventional thinking changes the world. The cosmos is electrifying your ideas — embrace your uniqueness and innovate boldly.' },
-  pisces:      { symbol: '♓', name: 'Pisces',      dates: 'Feb 19 – Mar 20',  element: 'Water', elementClass: 'water', planet: 'Neptune', quality: 'Mutable',  lucky: '3, 12, 21',   color: 'Sea Green', compat: 'Cancer, Scorpio',     traits: ['Compassionate', 'Artistic', 'Intuitive', 'Dreamy', 'Empathetic'],  message: 'Your imagination is a portal to infinite possibility. Neptune blesses your creativity — trust your visions and let art guide you.' }
+  aries: {
+    symbol: '♈', name: 'Aries', rashiName: 'मेष (Mesh)',
+    hindiSyllables: 'अ, ल, ई', engLetters: 'A, L, E, I, O',
+    dates: 'Mar 21 – Apr 19', element: 'Fire', elementClass: 'fire',
+    planet: 'Mars (मंगळ)', quality: 'Cardinal', lucky: '9, 18, 27', color: 'Red',
+    compat: 'Leo, Sagittarius (सिंह, धनु)',
+    traits: ['Courageous', 'Energetic', 'Confident', 'Passionate', 'Pioneering'],
+    message: 'Your fearless spirit is your greatest gift. The universe is aligning new opportunities that demand your boldness — step forward and lead the way.'
+  },
+  taurus: {
+    symbol: '♉', name: 'Taurus', rashiName: 'वृषभ (Vrushabh)',
+    hindiSyllables: 'ब, व, उ, इ', engLetters: 'B, V, U, W',
+    dates: 'Apr 20 – May 20', element: 'Earth', elementClass: 'earth',
+    planet: 'Venus (शुक्र)', quality: 'Fixed', lucky: '6, 15, 24', color: 'Green',
+    compat: 'Virgo, Capricorn (कन्या, मकर)',
+    traits: ['Reliable', 'Patient', 'Devoted', 'Sensual', 'Grounded'],
+    message: 'Your steady nature builds empires. Trust the process, nurture your roots, and watch as abundance flows naturally into your life.'
+  },
+  gemini: {
+    symbol: '♊', name: 'Gemini', rashiName: 'मिथुन (Mithun)',
+    hindiSyllables: 'क, छ, घ', engLetters: 'K, CHH, GH, C',
+    dates: 'May 21 – Jun 20', element: 'Air', elementClass: 'air',
+    planet: 'Mercury (बुध)', quality: 'Mutable', lucky: '5, 14, 23', color: 'Yellow',
+    compat: 'Libra, Aquarius (तुळ, कुंभ)',
+    traits: ['Versatile', 'Curious', 'Witty', 'Expressive', 'Social'],
+    message: 'Your dual nature is a superpower. Every conversation is a doorway — stay curious and let your adaptability carry you to new heights.'
+  },
+  cancer: {
+    symbol: '♋', name: 'Cancer', rashiName: 'कर्क (Kark)',
+    hindiSyllables: 'ड, ह', engLetters: 'D, H',
+    dates: 'Jun 21 – Jul 22', element: 'Water', elementClass: 'water',
+    planet: 'Moon (चंद्र)', quality: 'Cardinal', lucky: '2, 11, 20', color: 'Silver',
+    compat: 'Scorpio, Pisces (वृश्चिक, मीन)',
+    traits: ['Intuitive', 'Nurturing', 'Protective', 'Loyal', 'Imaginative'],
+    message: 'Your emotional depth is your compass. The moon whispers that healing and deeper connections await — open your heart to receive them.'
+  },
+  leo: {
+    symbol: '♌', name: 'Leo', rashiName: 'सिंह (Sinh)',
+    hindiSyllables: 'म, ट', engLetters: 'M, T',
+    dates: 'Jul 23 – Aug 22', element: 'Fire', elementClass: 'fire',
+    planet: 'Sun (सूर्य)', quality: 'Fixed', lucky: '1, 10, 19', color: 'Gold',
+    compat: 'Aries, Sagittarius (मेष, धनु)',
+    traits: ['Charismatic', 'Creative', 'Generous', 'Loyal', 'Dramatic'],
+    message: 'Your radiant light inspires everyone around you. The stars are amplifying your creative force — shine without reservation.'
+  },
+  virgo: {
+    symbol: '♍', name: 'Virgo', rashiName: 'कन्या (Kanya)',
+    hindiSyllables: 'प, ठ, ण', engLetters: 'P, TH',
+    dates: 'Aug 23 – Sep 22', element: 'Earth', elementClass: 'earth',
+    planet: 'Mercury (बुध)', quality: 'Mutable', lucky: '5, 14, 23', color: 'Navy Blue',
+    compat: 'Taurus, Capricorn (वृषभ, मकर)',
+    traits: ['Analytical', 'Practical', 'Diligent', 'Modest', 'Perfectionist'],
+    message: 'Your attention to detail is a cosmic gift. The universe rewards precision — trust your instincts to refine and perfect your path.'
+  },
+  libra: {
+    symbol: '♎', name: 'Libra', rashiName: 'तुळ (Tula)',
+    hindiSyllables: 'र, त', engLetters: 'R, T',
+    dates: 'Sep 23 – Oct 22', element: 'Air', elementClass: 'air',
+    planet: 'Venus (शुक्र)', quality: 'Cardinal', lucky: '6, 15, 24', color: 'Pink',
+    compat: 'Gemini, Aquarius (मिथुन, कुंभ)',
+    traits: ['Diplomatic', 'Graceful', 'Fair', 'Harmonious', 'Romantic'],
+    message: 'Your gift for balance brings peace to chaos. The stars are aligning partnerships that mirror your highest values — embrace harmony.'
+  },
+  scorpio: {
+    symbol: '♏', name: 'Scorpio', rashiName: 'वृश्चिक (Vrushchik)',
+    hindiSyllables: 'न, य', engLetters: 'N, Y',
+    dates: 'Oct 23 – Nov 21', element: 'Water', elementClass: 'water',
+    planet: 'Pluto (प्लूटो)', quality: 'Fixed', lucky: '8, 17, 26', color: 'Crimson',
+    compat: 'Cancer, Pisces (कर्क, मीन)',
+    traits: ['Intense', 'Resourceful', 'Magnetic', 'Strategic', 'Transformative'],
+    message: 'Your depth of feeling transforms everything it touches. A powerful rebirth is near — surrender to the transformation ahead.'
+  },
+  sagittarius: {
+    symbol: '♐', name: 'Sagittarius', rashiName: 'धनु (Dhanu)',
+    hindiSyllables: 'भ, ध, फ', engLetters: 'BH, DH, PH, F',
+    dates: 'Nov 22 – Dec 21', element: 'Fire', elementClass: 'fire',
+    planet: 'Jupiter (गुरु)', quality: 'Mutable', lucky: '3, 12, 21', color: 'Purple',
+    compat: 'Aries, Leo (मेष, सिंह)',
+    traits: ['Adventurous', 'Optimistic', 'Philosophical', 'Free-spirited', 'Honest'],
+    message: 'Your quest for truth is a beacon of light. The cosmos is expanding your horizons — aim your arrow high and trust the journey.'
+  },
+  capricorn: {
+    symbol: '♑', name: 'Capricorn', rashiName: 'मकर (Makar)',
+    hindiSyllables: 'ख, ज', engLetters: 'KH, J',
+    dates: 'Dec 22 – Jan 19', element: 'Earth', elementClass: 'earth',
+    planet: 'Saturn (शनि)', quality: 'Cardinal', lucky: '4, 13, 22', color: 'Brown',
+    compat: 'Taurus, Virgo (वृषभ, कन्या)',
+    traits: ['Ambitious', 'Disciplined', 'Responsible', 'Strategic', 'Wise'],
+    message: 'Your determination moves mountains. Saturn is rewarding your patience and discipline — the summit is closer than you think.'
+  },
+  aquarius: {
+    symbol: '♒', name: 'Aquarius', rashiName: 'कुंभ (Kumbh)',
+    hindiSyllables: 'ग, स, श, ष', engLetters: 'G, S, SH',
+    dates: 'Jan 20 – Feb 18', element: 'Air', elementClass: 'air',
+    planet: 'Uranus (युरेनस)', quality: 'Fixed', lucky: '7, 16, 25', color: 'Turquoise',
+    compat: 'Gemini, Libra (मिथुन, तुळ)',
+    traits: ['Innovative', 'Independent', 'Humanitarian', 'Visionary', 'Unique'],
+    message: 'Your unconventional thinking changes the world. The cosmos is electrifying your ideas — embrace your uniqueness and innovate boldly.'
+  },
+  pisces: {
+    symbol: '♓', name: 'Pisces', rashiName: 'मीन (Meen)',
+    hindiSyllables: 'द, च, थ, झ', engLetters: 'D, CH, TH',
+    dates: 'Feb 19 – Mar 20', element: 'Water', elementClass: 'water',
+    planet: 'Neptune (नेपच्यून)', quality: 'Mutable', lucky: '3, 12, 21', color: 'Sea Green',
+    compat: 'Cancer, Scorpio (कर्क, वृश्चिक)',
+    traits: ['Compassionate', 'Artistic', 'Intuitive', 'Dreamy', 'Empathetic'],
+    message: 'Your imagination is a portal to infinite possibility. Neptune blesses your creativity — trust your visions and let art guide you.'
+  }
 };
 
-// ─── Get Zodiac Sign from Date ───
-function getZodiacSign(month, day) {
-  if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return 'aries';
-  if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return 'taurus';
-  if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return 'gemini';
-  if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return 'cancer';
-  if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return 'leo';
-  if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return 'virgo';
-  if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return 'libra';
-  if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return 'scorpio';
-  if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'sagittarius';
-  if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return 'capricorn';
-  if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return 'aquarius';
-  if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return 'pisces';
+// ─── Get Rashi from Name (Indian Vedic System) ───
+// Determines zodiac sign by matching the first letter(s) of the name
+// to the traditional Marathi/Hindi syllable mapping.
+function getRashiFromName(name) {
+  const upper = name.toUpperCase().trim();
+
+  // 1) Check 3-letter prefix first
+  if (upper.length >= 3) {
+    const three = upper.substring(0, 3);
+    if (three === 'CHH') return 'gemini';
+  }
+
+  // 2) Check 2-letter prefixes (longest match wins)
+  if (upper.length >= 2) {
+    const two = upper.substring(0, 2);
+    const twoMap = {
+      'BH': 'sagittarius',
+      'DH': 'sagittarius',
+      'PH': 'sagittarius',
+      'KH': 'capricorn',
+      'GH': 'gemini',
+      'SH': 'aquarius',
+      'CH': 'pisces',
+      'TH': 'virgo'
+    };
+    if (twoMap[two]) return twoMap[two];
+  }
+
+  // 3) Check single-letter prefix
+  const one = upper.charAt(0);
+  const oneMap = {
+    'A': 'aries',
+    'L': 'aries',
+    'E': 'aries',
+    'I': 'aries',
+    'O': 'aries',
+    'B': 'taurus',
+    'V': 'taurus',
+    'U': 'taurus',
+    'W': 'taurus',
+    'K': 'gemini',
+    'C': 'gemini',
+    'D': 'cancer',
+    'H': 'cancer',
+    'M': 'leo',
+    'T': 'leo',
+    'P': 'virgo',
+    'R': 'libra',
+    'N': 'scorpio',
+    'Y': 'scorpio',
+    'F': 'sagittarius',
+    'J': 'capricorn',
+    'G': 'aquarius',
+    'S': 'aquarius'
+  };
+  if (oneMap[one]) return oneMap[one];
+
+  // Fallback
   return 'aries';
 }
 
@@ -284,20 +424,33 @@ function initForm() {
 
 // ─── Generate & Display Result ───
 function generateResult(firstName, surname, dob) {
-  const date = new Date(dob);
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const signKey = getZodiacSign(month, day);
+  // Determine Rashi from the first letter(s) of the name
+  const signKey = getRashiFromName(firstName);
   const data = ZODIAC_DATA[signKey];
 
   if (!data) return;
+
+  // Parse DOB for age and energy seed
+  const date = new Date(dob);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  // Format DOB for display
+  const dobFormatted = date.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
 
   // Fill result section
   document.getElementById('resultIcon').textContent = data.symbol;
   document.getElementById('resultName').textContent = `${capitalize(firstName)} ${capitalize(surname)}`;
   document.getElementById('resultSymbol').textContent = data.symbol;
-  document.getElementById('resultSign').textContent = data.name;
+  document.getElementById('resultSign').textContent = `${data.name} — ${data.rashiName}`;
   document.getElementById('resultDates').textContent = data.dates;
+
+  // Rashi-specific info
+  document.getElementById('resultRashiName').textContent = data.rashiName;
+  document.getElementById('resultHindiLetters').textContent = data.hindiSyllables;
+  document.getElementById('resultEngLetters').textContent = data.engLetters;
+  document.getElementById('resultDob').textContent = dobFormatted;
+  document.getElementById('resultMatchedLetter').textContent = firstName.charAt(0).toUpperCase();
 
   const elementBadge = document.getElementById('resultElement');
   elementBadge.textContent = `${data.element} Sign`;
@@ -350,7 +503,7 @@ function generateResult(firstName, surname, dob) {
   // Scroll to result
   resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  showToast(`✨ ${capitalize(firstName)}'s cosmic blueprint revealed!`);
+  showToast(`✨ ${capitalize(firstName)}'s राशी: ${data.rashiName} (${data.name})!`);
 }
 
 function capitalize(str) {
