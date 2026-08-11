@@ -113,20 +113,23 @@
 
         <!-- Filter Bar -->
         <div class="filter-bar" id="filter-bar" role="toolbar" aria-label="Filter options">
-          <button class="filter-chip" id="filter-sort" aria-label="Sort">
-            <select id="sort-select" aria-label="Sort by">
+          <div class="sort-select-wrapper" id="sort-wrapper">
+            <span class="sort-icon">↕️</span>
+            <select class="custom-sort-select" id="sort-select" aria-label="Sort restaurants">
               <option value="relevance">Sort: Relevance</option>
               <option value="rating">Rating: High to Low</option>
               <option value="delivery">Delivery Time</option>
               <option value="cost-low">Cost: Low to High</option>
               <option value="cost-high">Cost: High to Low</option>
             </select>
-          </button>
-          <button class="filter-chip" id="filter-veg" data-filter="veg">🟢 Pure Veg</button>
-          <button class="filter-chip" id="filter-rating" data-filter="rating">⭐ Rating 4.0+</button>
-          <button class="filter-chip" id="filter-price-low" data-filter="price-low">₹ Under 300</button>
-          <button class="filter-chip" id="filter-price-mid" data-filter="price-mid">₹₹ 300-600</button>
-          <button class="filter-chip" id="filter-time" data-filter="time">⚡ Under 30 min</button>
+            <span class="sort-chevron">▼</span>
+          </div>
+          <button class="filter-chip" id="filter-veg" data-filter="veg">🌿 Pure Veg</button>
+          <button class="filter-chip" id="filter-rating" data-filter="rating">⭐ 4.0+ Rating</button>
+          <button class="filter-chip" id="filter-price-low" data-filter="price-low">🏷️ Under ₹300</button>
+          <button class="filter-chip" id="filter-price-mid" data-filter="price-mid">💰 ₹300 - ₹600</button>
+          <button class="filter-chip" id="filter-time" data-filter="time">⚡ Under 30 mins</button>
+          <button class="filter-chip clear-filters hidden" id="filter-clear">✕ Clear Filters</button>
         </div>
 
         <!-- Restaurant Grid -->
@@ -266,6 +269,10 @@
     <div class="cart-rest-name hidden" id="cart-rest-name"></div>
     <div class="cart-items-list" id="cart-items-list">
       <!-- Cart items or empty state — populated by JS -->
+    </div>
+    <div class="cart-coupon-box hidden" id="cart-coupon-box">
+      <input type="text" class="cart-coupon-input" id="cart-coupon-input" placeholder="Enter coupon code (e.g. FLAT100)">
+      <button class="cart-coupon-btn" id="cart-coupon-btn" type="button">Apply</button>
     </div>
     <div class="cart-bill hidden" id="cart-bill">
       <h3 class="cart-bill-title">Bill Details</h3>
