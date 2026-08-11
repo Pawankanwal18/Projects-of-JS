@@ -1,19 +1,21 @@
 // ============================================================
 // QuickBite — Main Application Script
-// SPA routing, cart management, search, filters, interactions
+// SPA routing, cart management, search, filters, auth, interactions
 // ============================================================
 
 (function () {
   "use strict";
 
   // ============================================================
-  // STATE
+  // STATE & CONSTANTS
   // ============================================================
   const DELIVERY_FEE = 40;
   const GST_RATE = 0.05;
 
   let currentView = "home";
   let currentRestaurantId = null;
+  let appliedCoupon = null; // { code, discount, label }
+
   let activeFilters = {
     veg: false,
     rating: false,
@@ -40,6 +42,158 @@
   };
 
   // ============================================================
+  // USER & AUTH (localStorage)
+  // ============================================================
+  function getUser() {
+    try {
+      return JSON.parse(localStorage.getItem("qb_user"));
+    } catch {
+      return null;
+    }
+  }
+
+  function saveUser(user) {
+    localStorage.setItem("qb_user", JSON.stringify(user));
+    updateLoginUI();
+  }
+
+  function logoutUser() {
+    localStorage.removeItem("qb_user");
+    updateLoginUI();
+    closeProfileModal();
+    showToast("Logged out successfully. See you soon! 👋");
+  }
+
+  function updateLoginUI() {
+    const user = getUser();
+    const loginBtn = $("#login-btn");
+
+    if (user) {
+      const displayName = user.name ? user.name.split(" ")[0] : "User";
+      loginBtn.innerHTML = `👤 <span class="btn-text">${displayName}</span>`;
+      loginBtn.className = "header-btn user-btn";
+      loginBtn.setAttribute("aria-label", `My Account (${user.name})`);
+    } else {
+      loginBtn.innerHTML = '👤 <span class="btn-text">Login</span>';
+      loginBtn.className = "header-btn login-btn";
+      loginBtn.setAttribute("aria-label", "Login or Sign up");
+    }
+  }
+
+  function openLoginModal(tab = "login") {
+    // If already logged in, show Profile Modal instead
+    if (getUser()) {
+      openProfileModal();
+      return;
+    }
+
+    switchLoginTab(tab);
+    clearLoginErrors();
+    $("#login-overlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => {
+      const input = tab === "signup" ? $("#login-name") : $("#login-email");
+      if (input) input.focus();
+    }, 120);
+  }
+
+  function closeLoginModal() {
+    $("#login-overlay").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function switchLoginTab(tab) {
+    const tabLogin = $("#tab-login");
+    const tabSignup = $("#tab-signup");
+    const nameGroup = $("#fg-login-name");
+    const submitBtn = $("#login-submit-btn");
+    const title = $("#login-modal-title");
+
+    if (tab === "signup") {
+      tabSignup.classList.add("active");
+      tabSignup.setAttribute("aria-selected", "true");
+      tabLogin.classList.remove("active");
+      tabLogin.setAttribute("aria-selected", "false");
+      nameGroup.style.display = "block";
+      submitBtn.textContent = "Create Account";
+      title.textContent = "Create Account 🎉";
+    } else {
+      tabLogin.classList.add("active");
+      tabLogin.setAttribute("aria-selected", "true");
+      tabSignup.classList.remove("active");
+      tabSignup.setAttribute("aria-selected", "false");
+      nameGroup.style.display = "none";
+      submitBtn.textContent = "Login";
+      title.textContent = "Welcome Back 👋";
+    }
+    clearLoginErrors();
+  }
+
+  function clearLoginErrors() {
+    ["#fg-login-name", "#fg-login-email", "#fg-login-pass"].forEach((sel) => {
+      const el = $(sel);
+      if (el) el.classList.remove("error");
+    });
+  }
+
+  // ============================================================
+  // USER PROFILE MODAL
+  // ============================================================
+  function openProfileModal() {
+    const user = getUser();
+    if (!user) {
+      openLoginModal();
+      return;
+    }
+
+    const name = user.name || "Foodie";
+    const email = user.email || "user@quickbite.in";
+    const initial = name.charAt(0).toUpperCase();
+
+    $("#profile-name").textContent = name;
+    $("#profile-email").textContent = email;
+    $("#profile-avatar").textContent = initial;
+    $("#profile-favs-count").textContent = getFavorites().length;
+    $("#profile-cart-count").textContent = getCart().items.length;
+    $("#profile-address-subtext").textContent = $("#current-location").textContent;
+
+    $("#profile-overlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeProfileModal() {
+    $("#profile-overlay").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  // ============================================================
+  // FAVORITES (localStorage)
+  // ============================================================
+  function getFavorites() {
+    try {
+      return JSON.parse(localStorage.getItem("qb_favorites")) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function toggleFavorite(restId) {
+    let favs = getFavorites();
+    const id = parseInt(restId);
+    if (favs.includes(id)) {
+      favs = favs.filter((item) => item !== id);
+      showToast("Removed from favorites 🤍");
+    } else {
+      favs.push(id);
+      showToast("Added to favorites ❤️");
+    }
+    localStorage.setItem("qb_favorites", JSON.stringify(favs));
+    $$(`.card-fav-btn[data-id="${id}"]`).forEach((btn) => {
+      btn.textContent = favs.includes(id) ? "❤️" : "🤍";
+    });
+  }
+
+  // ============================================================
   // CART (localStorage)
   // ============================================================
   function getCart() {
@@ -56,6 +210,7 @@
   }
 
   function clearCart() {
+    appliedCoupon = null;
     saveCart({ restaurantId: null, restaurantName: "", items: [] });
   }
 
@@ -63,7 +218,7 @@
     // Require login before adding to cart
     if (!getUser()) {
       showToast("Please login to add items to your cart");
-      openLoginModal();
+      openLoginModal("login");
       return;
     }
 
@@ -88,7 +243,7 @@
     }
 
     saveCart(cart);
-    showToast(`${item.name} added to cart`);
+    showToast(`${item.name} added to cart ✨`);
     bumpCartBadge();
   }
 
@@ -105,6 +260,7 @@
     if (cart.items.length === 0) {
       cart.restaurantId = null;
       cart.restaurantName = "";
+      appliedCoupon = null;
     }
 
     saveCart(cart);
@@ -113,11 +269,21 @@
   function getCartTotals() {
     const cart = getCart();
     const subtotal = cart.items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-    const delivery = cart.items.length > 0 ? DELIVERY_FEE : 0;
-    const tax = Math.round(subtotal * GST_RATE);
-    const total = subtotal + delivery + tax;
+    const isFreeDel = appliedCoupon && appliedCoupon.code === "FREEDEL";
+    const delivery = cart.items.length > 0 ? (isFreeDel ? 0 : DELIVERY_FEE) : 0;
+    
+    let discount = 0;
+    if (appliedCoupon && subtotal > 0) {
+      if (appliedCoupon.code === "WELCOME60") discount = Math.min(Math.round(subtotal * 0.6), 120);
+      else if (appliedCoupon.code === "FLAT100") discount = subtotal >= 499 ? 100 : (subtotal >= 200 ? 50 : 0);
+      else if (appliedCoupon.code === "BOGO") discount = Math.round(subtotal * 0.2);
+    }
+
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const tax = Math.round(discountedSubtotal * GST_RATE);
+    const total = Math.max(0, discountedSubtotal + delivery + tax);
     const itemCount = cart.items.reduce((sum, i) => sum + i.quantity, 0);
-    return { subtotal, delivery, tax, total, itemCount };
+    return { subtotal, delivery, discount, tax, total, itemCount, appliedCoupon };
   }
 
   function getItemQtyInCart(itemId) {
@@ -134,7 +300,7 @@
   }
 
   // ============================================================
-  // TOAST
+  // TOAST NOTIFICATIONS
   // ============================================================
   let toastTimeout = null;
   function showToast(message) {
@@ -142,7 +308,7 @@
     toast.textContent = message;
     toast.classList.add("show");
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => toast.classList.remove("show"), 2500);
+    toastTimeout = setTimeout(() => toast.classList.remove("show"), 2600);
   }
 
   // ============================================================
@@ -151,7 +317,7 @@
   function bumpCartBadge() {
     const badge = $("#cart-badge");
     badge.classList.remove("bump");
-    void badge.offsetWidth; // reflow trigger
+    void badge.offsetWidth; // Reflow
     badge.classList.add("bump");
   }
 
@@ -220,6 +386,12 @@
       case "confirmation":
         showView("confirmation");
         break;
+      case "login":
+        openLoginModal("login");
+        break;
+      case "signup":
+        openLoginModal("signup");
+        break;
       default:
         showView("home");
     }
@@ -239,10 +411,28 @@
   // ============================================================
   // RESTAURANT CARD HTML
   // ============================================================
+  const discountOffers = [
+    "🔥 50% OFF up to ₹100",
+    "🚀 Free Delivery on ₹199+",
+    "🎉 Flat ₹120 OFF",
+    "✨ 20% OFF with code BOGO",
+    "⭐ Chef's Special Deal",
+    "💥 60% OFF on 1st Order",
+    "🍔 Flat ₹80 OFF",
+    "🍕 Buy 1 Get 1 Free",
+  ];
+
   function restaurantCardHTML(r) {
+    const offer = discountOffers[(r.id - 1) % discountOffers.length];
+    const isFav = getFavorites().includes(r.id);
+
     return `
       <article class="restaurant-card" data-id="${r.id}" tabindex="0" role="button" aria-label="View ${r.name}">
         <div class="rest-card-img">
+          <div class="card-top-badges">
+            <span class="card-discount-badge">${offer}</span>
+            <button class="card-fav-btn" data-id="${r.id}" type="button" aria-label="Save ${r.name} to favorites">${isFav ? "❤️" : "🤍"}</button>
+          </div>
           <img src="${r.image}" alt="${r.name} — ${r.cuisine.join(", ")}" loading="lazy" width="600" height="375">
         </div>
         <div class="rest-card-body">
@@ -283,11 +473,11 @@
     carouselContainer.innerHTML = promoBanners
       .map(
         (promo) => `
-      <div class="promo-card" style="background: ${promo.gradient}" role="group" aria-label="Promo: ${promo.title}">
+      <div class="promo-card" data-code="${promo.code}" style="background: ${promo.gradient}" role="group" aria-label="Promo: ${promo.title}">
         <div class="promo-emoji">${promo.emoji}</div>
         <div class="promo-title">${promo.title}</div>
         <div class="promo-subtitle">${promo.subtitle}</div>
-        <span class="promo-code">Use code: ${promo.code}</span>
+        <span class="promo-code" data-code="${promo.code}">🏷️ ${promo.code} <small style="opacity:0.85;margin-left:4px;">(Copy)</small></span>
       </div>
     `
       )
@@ -371,15 +561,19 @@
         break;
     }
 
+    // Update sort select value
+    const sortSelect = $("#sort-select");
+    if (sortSelect) sortSelect.value = f.sort;
+
     // Title
-    let title = "Restaurants";
+    let title = "All Restaurants";
     if (f.search) title = `Results for "${f.search}"`;
     else if (f.cuisine) {
       const cat = cuisineCategories.find((c) => c.id === f.cuisine);
       title = cat ? `${cat.icon} ${cat.name} Restaurants` : "Restaurants";
     }
     $("#listing-title").textContent = title;
-    $("#listing-count").textContent = `${filtered.length} restaurant${filtered.length !== 1 ? "s" : ""} found`;
+    $("#listing-count").textContent = `${filtered.length} restaurant${filtered.length !== 1 ? "s" : ""} available`;
 
     // Render grid
     const grid = $("#listing-restaurant-grid");
@@ -400,6 +594,13 @@
       const key = chip.dataset.filter;
       chip.classList.toggle("active", !!activeFilters[key]);
     });
+
+    // Check if any filter is active
+    const hasActiveFilter = f.veg || f.rating || f["price-low"] || f["price-mid"] || f.time || f.sort !== "relevance" || f.cuisine;
+    const clearBtn = $("#filter-clear");
+    if (clearBtn) {
+      clearBtn.classList.toggle("hidden", !hasActiveFilter);
+    }
   }
 
   // ============================================================
@@ -439,11 +640,11 @@
         <div class="menu-category-header" role="button" tabindex="0" aria-expanded="true">
           <span>
             <span class="menu-category-title">${cat.category}</span>
-            <span class="menu-category-count">(${cat.items.length})</span>
+            <span class="menu-category-count">${cat.items.length} items</span>
           </span>
           <span class="menu-category-chevron">▼</span>
         </div>
-        <div class="menu-items-list" style="max-height: ${cat.items.length * 180}px;">
+        <div class="menu-items-list" style="max-height: ${cat.items.length * 200}px;">
           ${cat.items.map((item) => menuItemHTML(r.id, r.name, item)).join("")}
         </div>
       </div>
@@ -484,7 +685,7 @@
           <img src="${item.image}" alt="${item.name}" loading="lazy" width="300" height="300">
           ${
             qty === 0
-              ? `<button class="add-btn" data-rest-id="${restId}" data-rest-name="${restName}" data-item='${JSON.stringify(item).replace(/'/g, "&#39;")}' aria-label="Add ${item.name} to cart">ADD</button>`
+              ? `<button class="add-btn" data-rest-id="${restId}" data-rest-name="${restName}" data-item='${JSON.stringify(item).replace(/'/g, "&#39;")}' aria-label="Add ${item.name} to cart">ADD +</button>`
               : `<div class="qty-stepper" data-item-id="${item.id}">
                   <button class="qty-minus" aria-label="Decrease quantity">−</button>
                   <span class="qty-value">${qty}</span>
@@ -502,10 +703,23 @@
   function renderCheckoutView() {
     const cart = getCart();
     const totals = getCartTotals();
+    const user = getUser();
 
     if (cart.items.length === 0) {
       navigateTo("home");
       return;
+    }
+
+    // Auto-fill user details if logged in and fields are blank
+    if (user) {
+      const nameInput = $("#checkout-name");
+      const phoneInput = $("#checkout-phone");
+      if (nameInput && !nameInput.value) nameInput.value = user.name || "";
+      if (phoneInput && !phoneInput.value) {
+        // If email has digits, or use sample phone
+        if (/^\d{10}$/.test(user.email)) phoneInput.value = user.email;
+        else phoneInput.value = "9876543210";
+      }
     }
 
     const summary = $("#checkout-summary");
@@ -515,22 +729,23 @@
           (item) => `
         <div class="summary-item">
           <span>
-            <span class="veg-dot ${item.isVeg ? "" : "nonveg"}" style="width:10px;height:10px;display:inline-flex;vertical-align:middle;margin-right:4px;">
+            <span class="veg-dot ${item.isVeg ? "" : "nonveg"}" style="width:12px;height:12px;display:inline-flex;vertical-align:middle;margin-right:6px;">
               <span style="width:5px;height:5px;"></span>
             </span>
-            ${item.name} <span class="item-qty">× ${item.quantity}</span>
+            ${item.name} <span class="item-qty" style="color:var(--text-muted);font-weight:600;">× ${item.quantity}</span>
           </span>
-          <span>${formatPrice(item.price * item.quantity)}</span>
+          <span style="font-weight:700;">${formatPrice(item.price * item.quantity)}</span>
         </div>
       `
         )
         .join("")}
-      <div style="border-top: 1px dashed var(--border); margin-top: 12px; padding-top: 12px;">
+      <div style="border-top: 1px dashed var(--border); margin-top: 14px; padding-top: 14px;">
         <div class="summary-item"><span>Subtotal</span><span>${formatPrice(totals.subtotal)}</span></div>
-        <div class="summary-item"><span>Delivery Fee</span><span>${formatPrice(totals.delivery)}</span></div>
+        ${totals.discount > 0 ? `<div class="summary-item" style="color:var(--veg);font-weight:700;"><span>Promo Discount</span><span>-${formatPrice(totals.discount)}</span></div>` : ""}
+        <div class="summary-item"><span>Delivery Fee</span><span>${totals.delivery === 0 ? '<span style="color:var(--veg);font-weight:700;">FREE</span>' : formatPrice(totals.delivery)}</span></div>
         <div class="summary-item"><span>GST (5%)</span><span>${formatPrice(totals.tax)}</span></div>
-        <div class="summary-item" style="font-weight:700; font-size:16px; margin-top:8px; padding-top:8px; border-top:2px solid var(--text);">
-          <span>Total</span><span>${formatPrice(totals.total)}</span>
+        <div class="summary-item" style="font-weight:800; font-size:17px; margin-top:10px; padding-top:10px; border-top:2px solid var(--text-main);">
+          <span>Total Payable</span><span style="color:var(--primary);">${formatPrice(totals.total)}</span>
         </div>
       </div>
     `;
@@ -543,21 +758,21 @@
     const card = $("#confirmation-card");
     card.innerHTML = `
       <div class="order-id">Order #${orderData.orderId}</div>
-      <div class="order-eta">🕐 Estimated delivery: ${orderData.eta}</div>
+      <div class="order-eta">🚀 Estimated Delivery: <strong>${orderData.eta}</strong></div>
       <div class="confirmation-items">
         ${orderData.items
           .map(
             (item) => `
           <div class="conf-item">
             <span>${item.name} × ${item.quantity}</span>
-            <span>${formatPrice(item.price * item.quantity)}</span>
+            <span style="font-weight:600;">${formatPrice(item.price * item.quantity)}</span>
           </div>
         `
           )
           .join("")}
-        <div class="conf-item" style="font-weight:700; margin-top:12px; padding-top:8px; border-top:1px solid var(--border);">
+        <div class="conf-item" style="font-weight:800; font-size:16px; margin-top:14px; padding-top:10px; border-top:1.5px solid var(--border-light);">
           <span>Total Paid</span>
-          <span>${formatPrice(orderData.total)}</span>
+          <span style="color:var(--success);">${formatPrice(orderData.total)}</span>
         </div>
       </div>
     `;
@@ -584,21 +799,24 @@
     const billEl = $("#cart-bill");
     const checkoutBtn = $("#cart-checkout-btn");
     const restNameEl = $("#cart-rest-name");
+    const couponBox = $("#cart-coupon-box");
 
     if (cart.items.length === 0) {
       listEl.innerHTML = `
         <div class="cart-empty">
           <div class="empty-icon">🛒</div>
           <h3 class="empty-title">Your cart is empty</h3>
-          <p class="empty-text">Looks like you haven't added anything to your cart yet.</p>
+          <p class="empty-text">Good food is always cooking! Add some delicious dishes to get started.</p>
         </div>
       `;
       billEl.classList.add("hidden");
       checkoutBtn.classList.add("hidden");
       restNameEl.classList.add("hidden");
+      if (couponBox) couponBox.classList.add("hidden");
     } else {
-      restNameEl.textContent = `From: ${cart.restaurantName}`;
+      restNameEl.textContent = `📍 Ordering from: ${cart.restaurantName}`;
       restNameEl.classList.remove("hidden");
+      if (couponBox) couponBox.classList.remove("hidden");
 
       listEl.innerHTML = cart.items
         .map(
@@ -606,7 +824,7 @@
         <div class="cart-item" data-item-id="${item.id}">
           <div class="cart-item-info">
             <div class="cart-item-name">
-              <span class="veg-dot ${item.isVeg ? "" : "nonveg"}" style="width:12px;height:12px;" aria-label="${item.isVeg ? "Veg" : "Non-Veg"}">
+              <span class="veg-dot ${item.isVeg ? "" : "nonveg"}" style="width:13px;height:13px;" aria-label="${item.isVeg ? "Veg" : "Non-Veg"}">
                 <span style="width:6px;height:6px;"></span>
               </span>
               ${item.name}
@@ -626,11 +844,28 @@
         )
         .join("");
 
-      // Bill
+      // Bill details
       $("#bill-subtotal").textContent = formatPrice(totals.subtotal);
-      $("#bill-delivery").textContent = formatPrice(totals.delivery);
+      $("#bill-delivery").textContent = totals.delivery === 0 ? "FREE" : formatPrice(totals.delivery);
       $("#bill-tax").textContent = formatPrice(totals.tax);
       $("#bill-total").textContent = formatPrice(totals.total);
+
+      // Check for discount row
+      let discountRow = $("#bill-discount-row");
+      if (totals.discount > 0) {
+        if (!discountRow) {
+          discountRow = document.createElement("div");
+          discountRow.id = "bill-discount-row";
+          discountRow.className = "cart-bill-row";
+          discountRow.style.color = "var(--veg)";
+          discountRow.style.fontWeight = "700";
+          billEl.insertBefore(discountRow, $("#bill-delivery").parentElement);
+        }
+        discountRow.innerHTML = `<span>Coupon (${appliedCoupon.code})</span><span>-${formatPrice(totals.discount)}</span>`;
+      } else if (discountRow) {
+        discountRow.remove();
+      }
+
       billEl.classList.remove("hidden");
       checkoutBtn.classList.remove("hidden");
     }
@@ -656,7 +891,6 @@
       const existingStepper = imgContainer.querySelector(".qty-stepper");
 
       if (qty === 0 && existingStepper) {
-        // Remove stepper, add button
         existingStepper.remove();
         const rest = restaurants.find((r) => r.id === currentRestaurantId);
         if (!rest) return;
@@ -672,10 +906,9 @@
         btn.dataset.restName = rest.name;
         btn.dataset.item = JSON.stringify(item);
         btn.setAttribute("aria-label", `Add ${item.name} to cart`);
-        btn.textContent = "ADD";
+        btn.textContent = "ADD +";
         imgContainer.appendChild(btn);
       } else if (qty > 0 && existingBtn) {
-        // Remove button, add stepper
         existingBtn.remove();
         const stepper = document.createElement("div");
         stepper.className = "qty-stepper";
@@ -713,68 +946,12 @@
     $("#cart-overlay").classList.add("open");
     $("#cart-drawer").classList.add("open");
     document.body.style.overflow = "hidden";
-    // Focus trap start
     setTimeout(() => $("#cart-close-btn").focus(), 100);
   }
 
   function closeCartDrawer() {
     $("#cart-overlay").classList.remove("open");
     $("#cart-drawer").classList.remove("open");
-    document.body.style.overflow = "";
-  }
-
-  // ============================================================
-  // LOGIN MODAL
-  // ============================================================
-  function getUser() {
-    try {
-      return JSON.parse(localStorage.getItem("qb_user"));
-    } catch {
-      return null;
-    }
-  }
-
-  function saveUser(user) {
-    localStorage.setItem("qb_user", JSON.stringify(user));
-    updateLoginUI();
-  }
-
-  function logoutUser() {
-    localStorage.removeItem("qb_user");
-    updateLoginUI();
-    showToast("Logged out successfully");
-  }
-
-  function updateLoginUI() {
-    const user = getUser();
-    const loginBtn = $("#login-btn");
-
-    if (user) {
-      loginBtn.innerHTML = `👤 <span class="btn-text">${user.name}</span>`;
-      loginBtn.className = "header-btn user-btn";
-      loginBtn.setAttribute("aria-label", `Logged in as ${user.name}`);
-    } else {
-      loginBtn.innerHTML = '👤 <span class="btn-text">Login</span>';
-      loginBtn.className = "header-btn login-btn";
-      loginBtn.setAttribute("aria-label", "Login or Sign up");
-    }
-  }
-
-  function openLoginModal() {
-    const user = getUser();
-    if (user) {
-      if (confirm(`Logged in as ${user.name}. Do you want to log out?`)) {
-        logoutUser();
-      }
-      return;
-    }
-    $("#login-overlay").classList.add("open");
-    document.body.style.overflow = "hidden";
-    setTimeout(() => $("#login-email").focus(), 100);
-  }
-
-  function closeLoginModal() {
-    $("#login-overlay").classList.remove("open");
     document.body.style.overflow = "";
   }
 
@@ -821,19 +998,16 @@
       dots.forEach((d, i) => d.classList.toggle("active", i === current));
     }
 
-    // Auto advance
     clearInterval(carouselInterval);
     carouselInterval = setInterval(() => {
       current = (current + 1) % promoBanners.length;
       goToSlide(current);
     }, 5000);
 
-    // Dot clicks
     dots.forEach((dot) => {
       dot.addEventListener("click", () => {
         clearInterval(carouselInterval);
         goToSlide(parseInt(dot.dataset.index));
-        // Restart auto after click
         carouselInterval = setInterval(() => {
           current = (current + 1) % promoBanners.length;
           goToSlide(current);
@@ -841,7 +1015,6 @@
       });
     });
 
-    // Update dots on scroll
     carousel.addEventListener("scroll", () => {
       const cards = carousel.querySelectorAll(".promo-card");
       const scrollLeft = carousel.scrollLeft;
@@ -912,6 +1085,27 @@
       });
     });
 
+    // Clear filters button
+    const clearBtn = $("#filter-clear");
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        activeFilters = {
+          veg: false,
+          rating: false,
+          "price-low": false,
+          "price-mid": false,
+          time: false,
+          sort: "relevance",
+          search: "",
+          cuisine: "",
+        };
+        $("#header-search-input").value = "";
+        $("#mobile-search-input").value = "";
+        renderListingView();
+        showToast("Filters reset to default");
+      });
+    }
+
     // Sort select
     $("#sort-select").addEventListener("change", (e) => {
       activeFilters.sort = e.target.value;
@@ -931,7 +1125,7 @@
         }
       });
     },
-    { threshold: 0.1, rootMargin: "20px" }
+    { threshold: 0.08, rootMargin: "30px" }
   );
 
   function observeCards(container) {
@@ -945,22 +1139,279 @@
   // ============================================================
   function attachCardListeners(container) {
     container.querySelectorAll(".restaurant-card").forEach((card) => {
-      const handler = () => navigateTo(`restaurant/${card.dataset.id}`);
+      const handler = (e) => {
+        // If clicked on favorite button, don't open restaurant
+        if (e.target.closest(".card-fav-btn")) return;
+        navigateTo(`restaurant/${card.dataset.id}`);
+      };
       card.addEventListener("click", handler);
       card.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
+          if (e.target.closest(".card-fav-btn")) return;
           e.preventDefault();
-          handler();
+          handler(e);
         }
       });
     });
   }
 
   // ============================================================
-  // EVENT DELEGATION (for dynamic elements)
+  // CHECKOUT VALIDATION & ORDER PLACEMENT
+  // ============================================================
+  function validateCheckout() {
+    let valid = true;
+
+    const name = $("#checkout-name").value.trim();
+    const phone = $("#checkout-phone").value.trim();
+    const address = $("#checkout-address").value.trim();
+    const pincode = $("#checkout-pincode").value.trim();
+
+    // Name
+    if (name.length < 2) {
+      $("#fg-name").classList.add("error");
+      valid = false;
+    } else {
+      $("#fg-name").classList.remove("error");
+    }
+
+    // Phone
+    if (!/^\d{10}$/.test(phone)) {
+      $("#fg-phone").classList.add("error");
+      valid = false;
+    } else {
+      $("#fg-phone").classList.remove("error");
+    }
+
+    // Address
+    if (address.length < 5) {
+      $("#fg-address").classList.add("error");
+      valid = false;
+    } else {
+      $("#fg-address").classList.remove("error");
+    }
+
+    // Pincode
+    if (!/^\d{6}$/.test(pincode)) {
+      $("#fg-pincode").classList.add("error");
+      valid = false;
+    } else {
+      $("#fg-pincode").classList.remove("error");
+    }
+
+    return valid;
+  }
+
+  function placeOrder() {
+    // Final login check before placing order
+    if (!getUser()) {
+      showToast("Please login to place your order");
+      openLoginModal("login");
+      return;
+    }
+
+    if (!validateCheckout()) {
+      showToast("Please fill all required fields correctly");
+      return;
+    }
+
+    const cart = getCart();
+    const totals = getCartTotals();
+
+    const orderData = {
+      orderId: "QB" + Date.now().toString().slice(-8),
+      eta: "25-35 mins",
+      items: cart.items,
+      total: totals.total,
+    };
+
+    renderConfirmation(orderData);
+    clearCart();
+
+    // Clear form
+    $("#checkout-form").reset();
+    $$(".form-group").forEach((fg) => fg.classList.remove("error"));
+
+    navigateTo("confirmation");
+    showToast("Order placed successfully! 🎉 Delicious food incoming!");
+  }
+
+  // ============================================================
+  // PAYMENT OPTION SELECTION
+  // ============================================================
+  function setupPaymentOptions() {
+    const options = $$("#payment-options .payment-option");
+    options.forEach((opt) => {
+      opt.addEventListener("click", () => {
+        options.forEach((o) => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        opt.querySelector('input[type="radio"]').checked = true;
+      });
+    });
+  }
+
+  // ============================================================
+  // LOGIN / SIGNUP / PROFILE SETUP
+  // ============================================================
+  function setupAuth() {
+    // Tab switching
+    $("#tab-login").addEventListener("click", () => switchLoginTab("login"));
+    $("#tab-signup").addEventListener("click", () => switchLoginTab("signup"));
+
+    // Form submit
+    const loginForm = $("#login-form");
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      clearLoginErrors();
+
+      const activeTab = $("#tab-signup").classList.contains("active") ? "signup" : "login";
+      const nameInput = $("#login-name").value.trim();
+      const emailInput = $("#login-email").value.trim();
+      const passInput = $("#login-password").value.trim();
+
+      let hasError = false;
+
+      if (activeTab === "signup" && nameInput.length < 2) {
+        $("#fg-login-name").classList.add("error");
+        hasError = true;
+      }
+
+      if (!emailInput || emailInput.length < 3) {
+        $("#fg-login-email").classList.add("error");
+        hasError = true;
+      }
+
+      if (!passInput || passInput.length < 4) {
+        $("#fg-login-pass").classList.add("error");
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      const name = activeTab === "signup" && nameInput ? nameInput : (emailInput.includes("@") ? emailInput.split("@")[0] : "Pawan");
+      saveUser({ name, email: emailInput, loggedIn: true });
+      closeLoginModal();
+      loginForm.reset();
+      showToast(`Welcome${activeTab === "signup" ? "" : " back"}, ${name}! 🎉`);
+    });
+
+    // 1-Click Demo Login Button
+    $("#demo-user-btn").addEventListener("click", () => {
+      saveUser({ name: "Pawan", email: "pawan@quickbite.in", loggedIn: true });
+      closeLoginModal();
+      loginForm.reset();
+      showToast("Logged in as Pawan (Demo Account) ⚡");
+    });
+
+    // Profile Modal Navigation & Logout
+    $("#profile-logout-btn").addEventListener("click", logoutUser);
+
+    $("#profile-favs-btn").addEventListener("click", () => {
+      closeProfileModal();
+      navigateTo("listing");
+      showToast("Showing your favorite restaurants ❤️");
+    });
+
+    $("#profile-cart-btn").addEventListener("click", () => {
+      closeProfileModal();
+      openCartDrawer();
+    });
+
+    $("#profile-orders-btn").addEventListener("click", () => {
+      closeProfileModal();
+      toggleLocationDropdown(true);
+    });
+  }
+
+  // ============================================================
+  // GEOLOCATION
+  // ============================================================
+  function useGeolocation() {
+    if (!navigator.geolocation) {
+      showToast("Geolocation is not supported by your browser");
+      return;
+    }
+
+    showToast("Detecting your location...");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        $("#current-location").textContent = "Current Location (GPS)";
+        toggleLocationDropdown(false);
+        showToast("Location detected successfully! 📍");
+      },
+      (err) => {
+        showToast("Could not detect location. Please select manually.");
+      },
+      { timeout: 5000 }
+    );
+  }
+
+  // ============================================================
+  // COUPON CODE APPLICATION
+  // ============================================================
+  function setupCouponApplication() {
+    const applyBtn = $("#cart-coupon-btn");
+    const input = $("#cart-coupon-input");
+
+    if (!applyBtn || !input) return;
+
+    const applyHandler = () => {
+      const code = input.value.trim().toUpperCase();
+      if (!code) {
+        showToast("Please enter a coupon code");
+        return;
+      }
+
+      if (code === "WELCOME60") {
+        appliedCoupon = { code: "WELCOME60", label: "60% OFF up to ₹120" };
+        showToast("Coupon WELCOME60 applied! 🎉");
+      } else if (code === "FLAT100") {
+        appliedCoupon = { code: "FLAT100", label: "Flat ₹100 OFF" };
+        showToast("Coupon FLAT100 applied! 💥");
+      } else if (code === "FREEDEL") {
+        appliedCoupon = { code: "FREEDEL", label: "Free Delivery" };
+        showToast("Free Delivery coupon applied! 🚀");
+      } else if (code === "BOGO") {
+        appliedCoupon = { code: "BOGO", label: "20% OFF" };
+        showToast("Coupon BOGO applied! 🍟");
+      } else {
+        showToast("Invalid coupon code. Try WELCOME60, FLAT100, FREEDEL");
+        return;
+      }
+
+      input.value = "";
+      updateCartUI();
+    };
+
+    applyBtn.addEventListener("click", applyHandler);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") applyHandler();
+    });
+  }
+
+  // ============================================================
+  // EVENT DELEGATION
   // ============================================================
   document.addEventListener("click", (e) => {
     const target = e.target;
+
+    // --- Favorite Wishlist Button ---
+    const favBtn = target.closest(".card-fav-btn");
+    if (favBtn) {
+      e.stopPropagation();
+      toggleFavorite(favBtn.dataset.id);
+      return;
+    }
+
+    // --- Promo Code Copy on Carousel ---
+    const promoCard = target.closest(".promo-card");
+    if (promoCard) {
+      const code = promoCard.dataset.code;
+      if (code) {
+        navigator.clipboard?.writeText(code);
+        showToast(`Promo code "${code}" copied! 🎉`);
+        return;
+      }
+    }
 
     // --- ADD button on menu item ---
     if (target.classList.contains("add-btn")) {
@@ -1016,152 +1467,6 @@
   });
 
   // ============================================================
-  // CHECKOUT VALIDATION & ORDER PLACEMENT
-  // ============================================================
-  function validateCheckout() {
-    let valid = true;
-
-    const name = $("#checkout-name").value.trim();
-    const phone = $("#checkout-phone").value.trim();
-    const address = $("#checkout-address").value.trim();
-    const pincode = $("#checkout-pincode").value.trim();
-
-    // Name
-    if (name.length < 2) {
-      $("#fg-name").classList.add("error");
-      valid = false;
-    } else {
-      $("#fg-name").classList.remove("error");
-    }
-
-    // Phone
-    if (!/^\d{10}$/.test(phone)) {
-      $("#fg-phone").classList.add("error");
-      valid = false;
-    } else {
-      $("#fg-phone").classList.remove("error");
-    }
-
-    // Address
-    if (address.length < 5) {
-      $("#fg-address").classList.add("error");
-      valid = false;
-    } else {
-      $("#fg-address").classList.remove("error");
-    }
-
-    // Pincode
-    if (!/^\d{6}$/.test(pincode)) {
-      $("#fg-pincode").classList.add("error");
-      valid = false;
-    } else {
-      $("#fg-pincode").classList.remove("error");
-    }
-
-    return valid;
-  }
-
-  function placeOrder() {
-    // Final login check before placing order
-    if (!getUser()) {
-      showToast("Please login to place your order");
-      openLoginModal();
-      return;
-    }
-
-    if (!validateCheckout()) {
-      showToast("Please fill all required fields correctly");
-      return;
-    }
-
-    const cart = getCart();
-    const totals = getCartTotals();
-
-    const orderData = {
-      orderId: "QB" + Date.now().toString().slice(-8),
-      eta: "30-40 mins",
-      items: cart.items,
-      total: totals.total,
-    };
-
-    renderConfirmation(orderData);
-    clearCart();
-
-    // Clear form
-    $("#checkout-form").reset();
-    $$(".form-group").forEach((fg) => fg.classList.remove("error"));
-
-    navigateTo("confirmation");
-    showToast("Order placed successfully! 🎉");
-  }
-
-  // ============================================================
-  // PAYMENT OPTION SELECTION
-  // ============================================================
-  function setupPaymentOptions() {
-    const options = $$("#payment-options .payment-option");
-    options.forEach((opt) => {
-      opt.addEventListener("click", () => {
-        options.forEach((o) => o.classList.remove("selected"));
-        opt.classList.add("selected");
-        opt.querySelector('input[type="radio"]').checked = true;
-      });
-    });
-  }
-
-  // ============================================================
-  // LOGIN TABS
-  // ============================================================
-  function setupLoginTabs() {
-    const tabs = $$(".login-tabs .login-tab");
-    const nameGroup = $("#login-name-group");
-    const submitBtn = $("#login-submit-btn");
-
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        tabs.forEach((t) => {
-          t.classList.remove("active");
-          t.setAttribute("aria-selected", "false");
-        });
-        tab.classList.add("active");
-        tab.setAttribute("aria-selected", "true");
-
-        if (tab.dataset.tab === "signup") {
-          nameGroup.style.display = "block";
-          submitBtn.textContent = "Sign Up";
-        } else {
-          nameGroup.style.display = "none";
-          submitBtn.textContent = "Login";
-        }
-      });
-    });
-  }
-
-  // ============================================================
-  // GEOLOCATION
-  // ============================================================
-  function useGeolocation() {
-    if (!navigator.geolocation) {
-      showToast("Geolocation is not supported by your browser");
-      return;
-    }
-
-    showToast("Detecting your location...");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        // Mock: just set a generic location
-        $("#current-location").textContent = "Current Location";
-        toggleLocationDropdown(false);
-        showToast("Location detected successfully!");
-      },
-      (err) => {
-        showToast("Could not detect location. Please select manually.");
-      },
-      { timeout: 5000 }
-    );
-  }
-
-  // ============================================================
   // INIT — Wire up everything
   // ============================================================
   function init() {
@@ -1172,11 +1477,14 @@
     updateLoginUI();
     setupFilters();
     setupPaymentOptions();
-    setupLoginTabs();
+    setupAuth();
+    setupCouponApplication();
 
     // --- Logo => Home ---
     const logoHandler = () => {
       activeFilters = { veg: false, rating: false, "price-low": false, "price-mid": false, time: false, sort: "relevance", search: "", cuisine: "" };
+      $("#header-search-input").value = "";
+      $("#mobile-search-input").value = "";
       navigateTo("home");
     };
     $("#logo-btn").addEventListener("click", logoHandler);
@@ -1201,12 +1509,10 @@
     // --- Search inputs ---
     $("#header-search-input").addEventListener("input", (e) => {
       handleSearch(e.target.value);
-      // Sync mobile input
       $("#mobile-search-input").value = e.target.value;
     });
     $("#mobile-search-input").addEventListener("input", (e) => {
       handleSearch(e.target.value);
-      // Sync desktop input
       $("#header-search-input").value = e.target.value;
     });
 
@@ -1223,35 +1529,31 @@
       if (!getUser()) {
         closeCartDrawer();
         showToast("Please login to proceed to checkout");
-        openLoginModal();
+        openLoginModal("login");
         return;
       }
       closeCartDrawer();
       navigateTo("checkout");
     });
 
-    // --- Login ---
-    $("#login-btn").addEventListener("click", openLoginModal);
+    // --- Login / Profile Button ---
+    $("#login-btn").addEventListener("click", () => {
+      if (getUser()) {
+        openProfileModal();
+      } else {
+        openLoginModal("login");
+      }
+    });
+
+    // Close buttons for modals
     $("#login-close-btn").addEventListener("click", closeLoginModal);
     $("#login-overlay").addEventListener("click", (e) => {
       if (e.target === $("#login-overlay")) closeLoginModal();
     });
 
-    // --- Login submit ---
-    $("#login-submit-btn").addEventListener("click", () => {
-      const email = $("#login-email").value.trim();
-      const nameInput = $("#login-name").value.trim();
-      const activeTab = $(".login-tab.active").dataset.tab;
-
-      if (!email) {
-        showToast("Please enter your email or phone");
-        return;
-      }
-
-      const name = activeTab === "signup" && nameInput ? nameInput : email.split("@")[0] || "User";
-      saveUser({ name, email, loggedIn: true });
-      closeLoginModal();
-      showToast(`Welcome${activeTab === "signup" ? "" : " back"}, ${name}! 🎉`);
+    $("#profile-close-btn").addEventListener("click", closeProfileModal);
+    $("#profile-overlay").addEventListener("click", (e) => {
+      if (e.target === $("#profile-overlay")) closeProfileModal();
     });
 
     // --- Restaurant back button ---
@@ -1270,12 +1572,30 @@
       if (e.key === "Escape") {
         if ($("#cart-drawer").classList.contains("open")) closeCartDrawer();
         if ($("#login-overlay").classList.contains("open")) closeLoginModal();
+        if ($("#profile-overlay").classList.contains("open")) closeProfileModal();
         if ($("#location-dropdown").classList.contains("open")) toggleLocationDropdown(false);
       }
     });
 
     // --- Handle initial route ---
     handleRoute();
+
+    // --- Dismiss Loading Screen Animation ---
+    dismissPageLoader();
+  }
+
+  // ============================================================
+  // PAGE LOADER DISMISSAL
+  // ============================================================
+  function dismissPageLoader() {
+    const loader = $("#page-loader");
+    if (!loader) return;
+    setTimeout(() => {
+      loader.classList.add("loaded");
+      setTimeout(() => {
+        if (loader.parentNode) loader.remove();
+      }, 600);
+    }, 850);
   }
 
   // Start the app

@@ -12,6 +12,36 @@
 <body>
 
   <!-- ============================================================
+       PAGE LOADER / SPLASH SCREEN ANIMATION
+       ============================================================ -->
+  <div class="page-loader" id="page-loader" role="status" aria-label="Loading QuickBite">
+    <div class="loader-content">
+      <div class="loader-icon-wrapper">
+        <div class="loader-glow"></div>
+        <div class="loader-food-ring">
+          <span class="loader-emoji e1">🍔</span>
+          <span class="loader-emoji e2">🍕</span>
+          <span class="loader-emoji e3">🍜</span>
+          <span class="loader-emoji e4">🥟</span>
+          <span class="loader-emoji e5">🍗</span>
+          <span class="loader-emoji e6">🍰</span>
+        </div>
+        <div class="loader-center-badge">
+          <span class="loader-center-icon">🚀</span>
+        </div>
+      </div>
+      <div class="loader-brand">
+        <div class="loader-logo">Quick<span>Bite</span></div>
+        <p class="loader-tagline">Fresh Food • Superfast Delivery</p>
+      </div>
+      <div class="loader-progress-bar">
+        <div class="loader-progress-fill"></div>
+      </div>
+      <div class="loader-status" id="loader-status">Discovering the best restaurants near you...</div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        HEADER
        ============================================================ -->
   <header class="header" id="header">
@@ -309,34 +339,86 @@
   </div>
 
   <!-- ============================================================
-       LOGIN MODAL
+       LOGIN / SIGNUP MODAL
        ============================================================ -->
   <div class="modal-overlay" id="login-overlay">
     <div class="login-modal" role="dialog" aria-label="Login or Sign up" aria-modal="true">
       <div class="login-modal-header">
-        <h2 class="login-modal-title">Welcome 👋</h2>
+        <h2 class="login-modal-title" id="login-modal-title">Welcome to QuickBite 👋</h2>
         <button class="modal-close-btn" id="login-close-btn" aria-label="Close login modal">✕</button>
       </div>
       <div class="login-tabs" role="tablist">
-        <button class="login-tab active" data-tab="login" role="tab" aria-selected="true">Login</button>
-        <button class="login-tab" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+        <button class="login-tab active" id="tab-login" data-tab="login" role="tab" aria-selected="true">Login</button>
+        <button class="login-tab" id="tab-signup" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
       </div>
-      <div class="login-form">
-        <div class="form-group">
-          <label for="login-email">Email or Phone</label>
-          <input type="text" id="login-email" placeholder="Enter your email or phone number">
-        </div>
-        <div class="form-group" id="login-name-group" style="display:none;">
+      <form class="login-form" id="login-form" novalidate>
+        <div class="form-group" id="fg-login-name" style="display:none;">
           <label for="login-name">Full Name</label>
-          <input type="text" id="login-name" placeholder="Enter your full name">
+          <input type="text" id="login-name" placeholder="Enter your full name" autocomplete="name">
+          <span class="error-msg" id="login-name-err">Please enter your name</span>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="fg-login-email">
+          <label for="login-email">Email or Mobile Number</label>
+          <input type="text" id="login-email" placeholder="e.g. pawan@example.com or 9876543210" required autocomplete="username">
+          <span class="error-msg" id="login-email-err">Please enter a valid email or phone number</span>
+        </div>
+        <div class="form-group" id="fg-login-pass">
           <label for="login-password">Password</label>
-          <input type="password" id="login-password" placeholder="Enter your password">
+          <input type="password" id="login-password" placeholder="Enter password (min 4 characters)" required autocomplete="current-password">
+          <span class="error-msg" id="login-pass-err">Password must be at least 4 characters</span>
         </div>
-        <button class="login-submit-btn" id="login-submit-btn" type="button">Login</button>
+        <button class="login-submit-btn" id="login-submit-btn" type="submit">Login</button>
+      </form>
+      
+      <!-- Quick Demo Login -->
+      <div class="demo-login-box">
+        <div class="demo-divider"><span>or test with 1-click</span></div>
+        <button class="demo-user-btn" id="demo-user-btn" type="button">
+          ⚡ Quick Demo Login (Pawan)
+        </button>
       </div>
-      <p class="login-footer">By continuing, you agree to our Terms of Service & Privacy Policy.</p>
+
+      <p class="login-footer">By continuing, you agree to QuickBite's Terms of Service & Privacy Policy.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       USER PROFILE & ACCOUNT MODAL (When Logged In)
+       ============================================================ -->
+  <div class="modal-overlay" id="profile-overlay">
+    <div class="login-modal profile-modal" role="dialog" aria-label="My Account" aria-modal="true">
+      <div class="login-modal-header">
+        <h2 class="login-modal-title">My Account 👤</h2>
+        <button class="modal-close-btn" id="profile-close-btn" aria-label="Close profile">✕</button>
+      </div>
+      <div class="profile-card">
+        <div class="profile-avatar" id="profile-avatar">P</div>
+        <div class="profile-details">
+          <h3 class="profile-name" id="profile-name">Pawan</h3>
+          <p class="profile-email" id="profile-email">pawan@example.com</p>
+          <span class="profile-badge">✅ Verified Foodie</span>
+        </div>
+      </div>
+      <div class="profile-menu">
+        <button class="profile-menu-item" id="profile-favs-btn" type="button">
+          <span class="menu-icon">❤️</span>
+          <span class="menu-label">Saved Favorites</span>
+          <span class="menu-badge" id="profile-favs-count">0</span>
+        </button>
+        <button class="profile-menu-item" id="profile-cart-btn" type="button">
+          <span class="menu-icon">🛒</span>
+          <span class="menu-label">My Cart</span>
+          <span class="menu-badge" id="profile-cart-count">0</span>
+        </button>
+        <button class="profile-menu-item" id="profile-orders-btn" type="button">
+          <span class="menu-icon">🧾</span>
+          <span class="menu-label">Delivery Address</span>
+          <span class="menu-subtext" id="profile-address-subtext">Koramangala</span>
+        </button>
+      </div>
+      <button class="logout-btn" id="profile-logout-btn" type="button">
+        🚪 Log Out
+      </button>
     </div>
   </div>
 
