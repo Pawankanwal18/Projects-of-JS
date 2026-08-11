@@ -74,7 +74,7 @@ const restaurants = [
     priceForTwo: 450,
     isPureVeg: false,
     image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&h=400&fit=crop",
-    coverImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=400&fit=crop",
+    coverImage: "restaurant_interior.png",
     address: "Shop 12, Sector 5, Koramangala",
     menu: [
       {
@@ -100,7 +100,7 @@ const restaurants = [
       {
         category: "Desserts",
         items: [
-          { id: 111, name: "Gulab Jamun", price: 120, isVeg: true, image: "https://images.unsplash.com/photo-1666190461891-47a5437b3846?w=300&h=300&fit=crop", description: "Soft milk dumplings soaked in rose-cardamom sugar syrup" },
+          { id: 111, name: "Gulab Jamun", price: 120, isVeg: true, image: "gulab_jamun.png", description: "Soft milk dumplings soaked in rose-cardamom sugar syrup" },
           { id: 112, name: "Rasmalai", price: 150, isVeg: true, image: "https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=300&h=300&fit=crop", description: "Spongy cheese patties in chilled saffron-pistachio milk" },
         ]
       },
