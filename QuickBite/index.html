@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="QuickBite — Order food from the best restaurants near you. Fast delivery, great prices, delicious meals.">
+  <meta name="theme-color" content="#FF4D29">
+  <title>QuickBite — Food Delivery</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍔</text></svg>">
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <header class="header" id="header">
+    <div class="header-inner container">
+      <!-- Logo -->
+      <div class="logo" id="logo-btn" role="button" tabindex="0" aria-label="QuickBite Home">
+        <div class="logo-icon">🍔</div>
+        <div class="logo-text">Quick<span>Bite</span></div>
+      </div>
+
+      <!-- Location Selector -->
+      <div class="location-selector" id="location-btn" role="button" tabindex="0" aria-label="Select delivery location" aria-expanded="false">
+        <span class="loc-icon">📍</span>
+        <span class="loc-text" id="current-location">Koramangala</span>
+        <span class="loc-chevron">▼</span>
+      </div>
+
+      <!-- Location Dropdown -->
+      <div class="location-dropdown" id="location-dropdown" role="listbox" aria-label="Select area">
+        <div class="dropdown-header">Choose your location</div>
+        <button class="geo-btn" id="geo-btn" type="button">
+          <span>📡</span> Use my current location
+        </button>
+        <div id="location-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Search (Desktop) -->
+      <div class="header-search" role="search">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="header-search-input" placeholder="Search for restaurant or dish" aria-label="Search for restaurant or dish" autocomplete="off">
+      </div>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <button class="header-btn cart-btn" id="cart-btn" aria-label="Open cart">
+          🛒 <span class="btn-text" style="display:none;">Cart</span>
+          <span class="cart-badge hidden" id="cart-badge">0</span>
+        </button>
+        <button class="header-btn login-btn" id="login-btn" aria-label="Login or Sign up">
+          👤 <span class="btn-text">Login</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Search -->
+  <div class="mobile-search" id="mobile-search">
+    <div class="mobile-search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="mobile-search-input" placeholder="Search for restaurant or dish" aria-label="Search for restaurant or dish" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MAIN CONTENT
+       ============================================================ -->
+  <main>
+
+    <!-- ==================== HOME VIEW ==================== -->
+    <section class="view active" id="home-view" aria-label="Home">
+      <div class="container">
+        <!-- Cuisine Categories -->
+        <div class="categories-section">
+          <h2 class="section-title">What's on your mind?</h2>
+          <div class="categories-scroll" id="categories-scroll" role="list" aria-label="Cuisine categories">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Promo Carousel -->
+        <div class="promo-section">
+          <div class="promo-carousel-wrapper">
+            <div class="promo-carousel" id="promo-carousel" aria-label="Promotional offers">
+              <!-- Populated by JS -->
+            </div>
+            <div class="promo-dots" id="promo-dots" role="tablist" aria-label="Carousel navigation">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Restaurants Grid -->
+        <div class="restaurants-section">
+          <h2 class="section-title">Restaurants near you 🍽️</h2>
+          <div class="restaurant-grid" id="home-restaurant-grid" aria-label="Restaurant list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== LISTING VIEW ==================== -->
+    <section class="view" id="listing-view" aria-label="Search results and filters">
+      <div class="container">
+        <h1 class="listing-title" id="listing-title">Restaurants</h1>
+        <p class="listing-count" id="listing-count"></p>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar" id="filter-bar" role="toolbar" aria-label="Filter options">
+          <button class="filter-chip" id="filter-sort" aria-label="Sort">
+            <select id="sort-select" aria-label="Sort by">
+              <option value="relevance">Sort: Relevance</option>
+              <option value="rating">Rating: High to Low</option>
+              <option value="delivery">Delivery Time</option>
+              <option value="cost-low">Cost: Low to High</option>
+              <option value="cost-high">Cost: High to Low</option>
+            </select>
+          </button>
+          <button class="filter-chip" id="filter-veg" data-filter="veg">🟢 Pure Veg</button>
+          <button class="filter-chip" id="filter-rating" data-filter="rating">⭐ Rating 4.0+</button>
+          <button class="filter-chip" id="filter-price-low" data-filter="price-low">₹ Under 300</button>
+          <button class="filter-chip" id="filter-price-mid" data-filter="price-mid">₹₹ 300-600</button>
+          <button class="filter-chip" id="filter-time" data-filter="time">⚡ Under 30 min</button>
+        </div>
+
+        <!-- Restaurant Grid -->
+        <div class="restaurant-grid" id="listing-restaurant-grid" aria-label="Filtered restaurant list">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state hidden" id="listing-empty">
+          <div class="empty-icon">🔍</div>
+          <h3 class="empty-title">No restaurants found</h3>
+          <p class="empty-text">Try adjusting your filters or search for something else.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== RESTAURANT DETAIL VIEW ==================== -->
+    <section class="view" id="restaurant-view" aria-label="Restaurant details">
+      <div class="rest-detail-header">
+        <button class="back-btn" id="rest-back-btn" aria-label="Go back">←</button>
+        <img class="rest-cover" id="rest-cover-img" src="" alt="" loading="lazy">
+      </div>
+      <div class="container">
+        <div class="rest-detail-info" id="rest-detail-info">
+          <!-- Populated by JS -->
+        </div>
+        <div class="menu-section" id="menu-section">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CHECKOUT VIEW ==================== -->
+    <section class="view" id="checkout-view" aria-label="Checkout">
+      <div class="container">
+        <div class="checkout-section">
+          <h1 class="section-title" style="margin-bottom: 4px;">Checkout</h1>
+          <p style="color: var(--text-secondary); margin-bottom: var(--gap-lg); font-size: 14px;">Complete your order details below</p>
+
+          <!-- Delivery Address -->
+          <div class="checkout-card">
+            <h2 class="checkout-card-title">📍 Delivery Address</h2>
+            <form id="checkout-form" novalidate>
+              <div class="form-group" id="fg-name">
+                <label for="checkout-name">Full Name</label>
+                <input type="text" id="checkout-name" placeholder="Enter your full name" required>
+                <span class="error-msg">Please enter your name</span>
+              </div>
+              <div class="form-group" id="fg-phone">
+                <label for="checkout-phone">Phone Number</label>
+                <input type="tel" id="checkout-phone" placeholder="Enter 10-digit phone number" required>
+                <span class="error-msg">Please enter a valid phone number</span>
+              </div>
+              <div class="form-group" id="fg-address">
+                <label for="checkout-address">Delivery Address</label>
+                <textarea id="checkout-address" placeholder="House/Flat No., Building, Street, Area" rows="3" required></textarea>
+                <span class="error-msg">Please enter your delivery address</span>
+              </div>
+              <div class="form-group" id="fg-pincode">
+                <label for="checkout-pincode">Pincode</label>
+                <input type="text" id="checkout-pincode" placeholder="Enter 6-digit pincode" required>
+                <span class="error-msg">Please enter a valid pincode</span>
+              </div>
+            </form>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="checkout-card">
+            <h2 class="checkout-card-title">💳 Payment Method</h2>
+            <div class="payment-options" id="payment-options">
+              <label class="payment-option selected">
+                <input type="radio" name="payment" value="upi" checked>
+                <span class="pay-icon">📱</span>
+                <div>
+                  <div class="pay-label">UPI</div>
+                  <div class="pay-desc">Google Pay, PhonePe, Paytm</div>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="card">
+                <span class="pay-icon">💳</span>
+                <div>
+                  <div class="pay-label">Credit / Debit Card</div>
+                  <div class="pay-desc">Visa, Mastercard, RuPay</div>
+                </div>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payment" value="cod">
+                <span class="pay-icon">💵</span>
+                <div>
+                  <div class="pay-label">Cash on Delivery</div>
+                  <div class="pay-desc">Pay when your order arrives</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="checkout-card">
+            <h2 class="checkout-card-title">🧾 Order Summary</h2>
+            <div class="checkout-summary" id="checkout-summary">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <button class="place-order-btn" id="place-order-btn" type="button">Place Order</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CONFIRMATION VIEW ==================== -->
+    <section class="view" id="confirmation-view" aria-label="Order confirmation">
+      <div class="container">
+        <div class="confirmation-section">
+          <div class="confirmation-icon">✅</div>
+          <h1 class="confirmation-title">Order Placed!</h1>
+          <p class="confirmation-subtitle">Your food is being prepared and will be delivered soon.</p>
+          <div class="confirmation-card" id="confirmation-card">
+            <!-- Populated by JS -->
+          </div>
+          <button class="home-btn" id="conf-home-btn" type="button">🏠 Back to Home</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       CART DRAWER
+       ============================================================ -->
+  <div class="cart-overlay" id="cart-overlay" role="presentation"></div>
+  <aside class="cart-drawer" id="cart-drawer" role="dialog" aria-label="Shopping cart" aria-modal="true">
+    <div class="cart-drawer-header">
+      <h2 class="cart-drawer-title">Your Cart</h2>
+      <button class="cart-close-btn" id="cart-close-btn" aria-label="Close cart">✕</button>
+    </div>
+    <div class="cart-rest-name hidden" id="cart-rest-name"></div>
+    <div class="cart-items-list" id="cart-items-list">
+      <!-- Cart items or empty state — populated by JS -->
+    </div>
+    <div class="cart-bill hidden" id="cart-bill">
+      <h3 class="cart-bill-title">Bill Details</h3>
+      <div class="cart-bill-row">
+        <span>Item Total</span>
+        <span id="bill-subtotal">₹0</span>
+      </div>
+      <div class="cart-bill-row">
+        <span>Delivery Fee</span>
+        <span id="bill-delivery">₹40</span>
+      </div>
+      <div class="cart-bill-row">
+        <span>GST (5%)</span>
+        <span id="bill-tax">₹0</span>
+      </div>
+      <div class="cart-bill-row total">
+        <span>To Pay</span>
+        <span id="bill-total">₹0</span>
+      </div>
+    </div>
+    <button class="cart-checkout-btn hidden" id="cart-checkout-btn" type="button">Proceed to Checkout →</button>
+  </aside>
+
+  <!-- ============================================================
+       STICKY CART BAR (Restaurant page)
+       ============================================================ -->
+  <div class="sticky-cart-bar" id="sticky-cart-bar">
+    <div class="cart-summary">
+      <span id="sticky-items-count">0 items</span> | <strong id="sticky-total">₹0</strong>
+    </div>
+    <button class="view-cart-btn" id="sticky-view-cart-btn" type="button" aria-label="View cart">
+      View Cart →
+    </button>
+  </div>
+
+  <!-- ============================================================
+       LOGIN MODAL
+       ============================================================ -->
+  <div class="modal-overlay" id="login-overlay">
+    <div class="login-modal" role="dialog" aria-label="Login or Sign up" aria-modal="true">
+      <div class="login-modal-header">
+        <h2 class="login-modal-title">Welcome 👋</h2>
+        <button class="modal-close-btn" id="login-close-btn" aria-label="Close login modal">✕</button>
+      </div>
+      <div class="login-tabs" role="tablist">
+        <button class="login-tab active" data-tab="login" role="tab" aria-selected="true">Login</button>
+        <button class="login-tab" data-tab="signup" role="tab" aria-selected="false">Sign Up</button>
+      </div>
+      <div class="login-form">
+        <div class="form-group">
+          <label for="login-email">Email or Phone</label>
+          <input type="text" id="login-email" placeholder="Enter your email or phone number">
+        </div>
+        <div class="form-group" id="login-name-group" style="display:none;">
+          <label for="login-name">Full Name</label>
+          <input type="text" id="login-name" placeholder="Enter your full name">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter your password">
+        </div>
+        <button class="login-submit-btn" id="login-submit-btn" type="button">Login</button>
+      </div>
+      <p class="login-footer">By continuing, you agree to our Terms of Service & Privacy Policy.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TOAST NOTIFICATION
+       ============================================================ -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">Quick<span>Bite</span></div>
+        <p>Delivering happiness to your doorstep. Fast, fresh, and always delicious.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Blog</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-links">
+        <h4>Support</h4>
+        <a href="#">Help Center</a>
+        <a href="#">Partner with Us</a>
+        <a href="#">Ride with Us</a>
+        <a href="#">Terms & Conditions</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 QuickBite. All rights reserved. Made with ❤️ in India.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="mock-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
