@@ -60,6 +60,13 @@
   }
 
   function addToCart(restaurantId, restaurantName, item) {
+    // Require login before adding to cart
+    if (!getUser()) {
+      showToast("Please login to add items to your cart");
+      openLoginModal();
+      return;
+    }
+
     let cart = getCart();
 
     // If cart has items from a different restaurant, prompt to replace
@@ -1055,6 +1062,13 @@
   }
 
   function placeOrder() {
+    // Final login check before placing order
+    if (!getUser()) {
+      showToast("Please login to place your order");
+      openLoginModal();
+      return;
+    }
+
     if (!validateCheckout()) {
       showToast("Please fill all required fields correctly");
       return;
@@ -1206,6 +1220,12 @@
 
     // --- Cart checkout ---
     $("#cart-checkout-btn").addEventListener("click", () => {
+      if (!getUser()) {
+        closeCartDrawer();
+        showToast("Please login to proceed to checkout");
+        openLoginModal();
+        return;
+      }
       closeCartDrawer();
       navigateTo("checkout");
     });
